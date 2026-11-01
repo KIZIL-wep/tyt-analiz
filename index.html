@@ -4,205 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TYT Analiz Pro</title>
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-dark: #0b0f19;
-            --card-bg: #121826;
-            --card-border: #1e293b;
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --border-color: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
             --primary: #6366f1;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --accent-yellow: #eab308;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --primary-hover: #4f46e5;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; min-height: 100vh; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        /* Header */
-        header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 24px; border-radius: 14px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
-        .logo-area h1 { font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
-        .logo-area p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
-        
-        .nav-tabs { display: flex; gap: 10px; }
-        .tab-btn { background: #1e293b; border: 1px solid #334155; color: var(--text-main); padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
-        .tab-btn.active, .tab-btn:hover { background: #d97706; border-color: #f59e0b; color: #fff; font-weight: 600; }
 
-        /* Top Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
-        .stat-info span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-        .stat-info h3 { font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 4px; }
-        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .icon-blue { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-        .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .icon-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-        .icon-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        /* Main Content Layout */
-        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
-        @media(max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
 
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .card-title { font-size: 1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-        /* Chart Area */
-        .chart-container { position: relative; height: 260px; width: 100%; }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
 
-        /* Lessons Breakdown */
-        .lessons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .lesson-box { background: #0f172a; border: 1px solid #1e293b; padding: 14px; border-radius: 10px; cursor: pointer; transition: border-color 0.2s; }
-        .lesson-box:hover { border-color: #6366f1; }
-        .lesson-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; color: #e2e8f0; }
-        .lesson-stats { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
-        .badge { background: #1e293b; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; color: #cbd5e1; }
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+        }
 
-        /* Table Section */
-        .table-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; }
-        .table-header { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: #fff; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-        th { color: var(--text-muted); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--card-border); font-size: 0.8rem; text-transform: uppercase; }
-        td { padding: 12px 10px; border-bottom: 1px solid #1e293b; color: #e2e8f0; }
-        .empty-row { text-align: center; color: var(--text-muted); padding: 24px; font-size: 0.85rem; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div class="logo-area">
-                <h1>📊 TYT ANALİZ</h1>
-                <p>YKS & TYT Sınav Takip ve Net Analiz Sistemi</p>
-            </div>
-            <div class="nav-tabs">
-                <button class="tab-btn active">Genel İstatistikler</button>
-                <button class="tab-btn">Denemelerim</button>
-                <button class="tab-btn">Ortak Yanlışlar</button>
-            </div>
-        </header>
+        .header-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
 
-        <!-- Stats Overview -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Toplam Deneme</span>
-                    <h3 id="totalDeneme">0</h3>
-                </div>
-                <div class="stat-icon icon-blue">📝</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Toplam Yanlış Soru</span>
-                    <h3 id="totalYanlis">0</h3>
-                </div>
-                <div class="stat-icon icon-red">⚠️</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Çözülen / Anlaşılan</span>
-                    <h3 id="totalCozulen">0</h3>
-                </div>
-                <div class="stat-icon icon-green">✅</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-info">
-                    <span>Bekleyen Yanlışlar</span>
-                    <h3 id="totalBekleyen">0</h3>
-                </div>
-                <div class="stat-icon icon-yellow">⏳</div>
-            </div>
-        </div>
+        /* Navigasyon / Sekmeler */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
 
-        <!-- Main Grid: Graph & Lessons -->
-        <div class="main-grid">
-            <!-- Net Tracking Chart -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📈 Net Takip Grafiği & Gelişim Eğrisi</div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="netChart"></canvas>
-                </div>
-            </div>
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            background-color: var(--border-color);
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
 
-            <!-- Lessons Breakdown -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📚 Ders Bazlı Yanlış Oranları</div>
-                </div>
-                <div class="lessons-grid">
-                    <div class="lesson-box">
-                        <div class="lesson-name">Türkçe</div>
-                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
-                    </div>
-                    <div class="lesson-box">
-                        <div class="lesson-name">Sosyal Bilgiler</div>
-                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
-                    </div>
-                    <div class="lesson-box">
-                        <div class="lesson-name">Temel Matematik</div>
-                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
-                    </div>
-                    <div class="lesson-box">
-                        <div class="lesson-name">Fen Bilimleri</div>
-                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
 
-        <!-- Table Section -->
-        <div class="table-section">
-            <div class="table-header">Seçili Ders Konu Dağılımı: Türkçe</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Konu Adı</th>
-                        <th>💡 Bilgi Eksikliği</th>
-                        <th>🎯 Dikkat Eksikliği</th>
-                        <th>📌 Toplam Yanlış Soru</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="4" class="empty-row">Bu derste henüz eklenmiş bir yanlış soru bulunmuyor.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        .tab-content {
+            display: none;
+        }
 
-    <script>
-        // Chart.js Grafiği Başlatma
-        const ctx = document.getElementById('netChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['1. Deneme', '2. Deneme', '3. Deneme', '4. Deneme', '5. Deneme'],
-                datasets: [{
-                    label: 'TYT Net',
-                    data: [0, 0, 0, 0, 0],
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, suggestedMax: 120 },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Form Elemanları */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
