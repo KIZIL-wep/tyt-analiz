@@ -7,22 +7,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #070a12;
-            --card-bg: #0d1322;
-            --border-color: #172033;
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --border-color: #1f2937;
             --text-main: #f3f4f6;
-            --text-muted: #8a99ad;
-            --accent-orange: #f59e0b;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
+            --text-muted: #9ca3af;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -35,610 +36,450 @@
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 600px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        .top-app-bar {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .app-title-mini {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .view-toggle {
-            display: flex;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 3px;
-        }
-
-        .toggle-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 5px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .toggle-btn.active {
-            background-color: var(--text-main);
-            color: #000;
-        }
-
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 16px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
-
-        .brand-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-
-        .brand-text h1 {
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-text h1 span {
-            color: var(--accent-orange);
-        }
-
-        .brand-text p {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .nav-tabs {
-            display: flex;
-            background-color: #0b101d;
-            padding: 4px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 8px 12px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background-color: var(--accent-orange);
-            color: #000;
-            font-weight: 700;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        @media(max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr; }
-        }
-
-        .stat-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stat-info .title {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .stat-info .value {
-            font-size: 26px;
-            font-weight: 800;
-            margin-top: 4px;
-        }
-
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-        .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .icon-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .icon-orange { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 18px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            gap: 8px;
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
         }
 
-        .card-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .filter-pills {
-            display: flex;
-            background-color: #070a12;
-            padding: 3px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            gap: 2px;
-        }
-
-        .pill {
-            padding: 4px 8px;
-            font-size: 10px;
-            border: none;
-            background: transparent;
+        .header-sub {
+            font-size: 12px;
             color: var(--text-muted);
-            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 10px;
+            background-color: var(--border-color);
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
         }
 
-        .pill.active {
-            background-color: var(--accent-orange);
-            color: #000;
-            font-weight: 700;
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
         }
 
-        .chart-box {
-            position: relative;
-            height: 220px;
-            width: 100%;
+        .tab-content {
+            display: none;
         }
 
-        .tab-content { display: none; flex-direction: column; gap: 14px; }
-        .tab-content.active { display: flex; }
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-        label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
         input, select, textarea {
             width: 100%;
-            padding: 10px 12px;
-            background-color: #070a12;
+            padding: 9px 11px;
+            background-color: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-main);
             font-size: 13px;
         }
 
-        .btn-submit {
-            background-color: var(--accent-orange);
-            color: #000;
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
             width: 100%;
         }
 
-        .list-item {
-            background-color: #070a12;
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            padding: 4px 8px;
+            font-size: 11px;
+            width: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
         }
 
-        .item-actions {
+        .stat-box {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        .list-item {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
             display: flex;
-            gap: 6px;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .btn-del {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 6px 10px;
-            border-radius: 6px;
+        .item-title {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .item-details {
             font-size: 11px;
-            cursor: pointer;
+            color: var(--text-muted);
         }
 
-        .btn-check {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .status-done {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        #codeViewArea {
-            display: none;
-            background-color: #03050a;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #34d399;
-            white-space: pre-wrap;
-            overflow-x: auto;
-            max-height: 400px;
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="top-app-bar">
-        <div class="app-title-mini">TYT Analiz Pro</div>
-        <div class="view-toggle">
-            <button class="toggle-btn" id="btnCode" onclick="toggleView('code')">Kod</button>
-            <button class="toggle-btn active" id="btnPreview" onclick="toggleView('preview')">Önizle</button>
+    <div class="card" style="padding: 12px;">
+        <div class="header-title">📊 TYT Analiz Pro</div>
+        <div class="header-sub">YKS & TYT Sınav Takip ve Net Analiz Sistemi</div>
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('genel')">Genel İstatistik</button>
+            <button class="tab-btn" onclick="switchTab('deneme')">Denemelerim</button>
+            <button class="tab-btn" onclick="switchTab('yanlis')">Yanlış Defteri</button>
         </div>
     </div>
 
-    <div id="codeViewArea"></div>
-
-    <div id="previewContainer" style="display: flex; flex-direction: column; gap: 16px;">
-        
-        <div class="top-header">
-            <div class="brand">
-                <div class="brand-icon">📈</div>
-                <div class="brand-text">
-                    <h1>TYT ANALİZ <span>PRO</span></h1>
-                    <p>YKS & TYT Sınav Takip ve Net Analiz Sistemi</p>
-                </div>
+    <!-- 1. GENEL İSTATİSTİK -->
+    <div id="genel" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>Toplam Deneme</label>
+                <div class="stat-value" id="statTotalDeneme">0</div>
             </div>
-
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('genel', event)">📊 Genel İstatistikler</button>
-                <button class="tab-btn" onclick="switchTab('deneme', event)">📁 Denemelerim</button>
-                <button class="tab-btn" onclick="switchTab('yanlis', event)">📋 Ortak Yanlışlar Tablosu</button>
+            <div class="stat-box">
+                <label>Ortalama Net</label>
+                <div class="stat-value" id="statAvgNet">0.0</div>
             </div>
-        </div>
-
-        <!-- 1. GENEL İSTATİSTİKLER TABI -->
-        <div id="genel" class="tab-content active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <div class="title">TOPLAM DENEME</div>
-                        <div class="value" id="valDeneme">0</div>
-                    </div>
-                    <div class="stat-icon icon-blue">📝</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <div class="title">TOPLAM YANLIŞ SORU</div>
-                        <div class="value" id="valYanlis" style="color:#f87171;">0</div>
-                    </div>
-                    <div class="stat-icon icon-red">⚠️</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <div class="title">ÇÖZÜLEN / ANLAŞILAN</div>
-                        <div class="value" id="valCozulen" style="color:#34d399;">0</div>
-                    </div>
-                    <div class="stat-icon icon-green">✓</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-info">
-                        <div class="title">BEKLEYEN YANLIŞLAR</div>
-                        <div class="value" id="valBekleyen" style="color:#fbbf24;">0</div>
-                    </div>
-                    <div class="stat-icon icon-orange">⏳</div>
-                </div>
+            <div class="stat-box">
+                <label>Toplam Yanlış</label>
+                <div class="stat-value" id="statTotalYanlis">0</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📈 Net Takip Grafiği & Gelişim Eğrisi</div>
-                    <div class="filter-pills">
-                        <button class="pill">Haftalık</button>
-                        <button class="pill">Birkaç Haftalık</button>
-                        <button class="pill">Bir Aylık</button>
-                        <button class="pill active">Tümü</button>
-                    </div>
-                </div>
-                <div class="chart-box">
-                    <canvas id="netChart"></canvas>
-                </div>
+            <div class="stat-box">
+                <label>Bekleyen Yanlışlar</label>
+                <div class="stat-value" id="statBekleyenYanlis">0</div>
             </div>
         </div>
 
-        <!-- 2. DENEMELERİM TABI -->
-        <div id="deneme" class="tab-content">
-            <div class="card">
-                <div class="card-title" style="margin-bottom: 12px;">Deneme Sonucu Ekle</div>
-                <div class="form-group">
-                    <label>Deneme Adı / Yayın</label>
-                    <input type="text" id="dAdi" placeholder="Örn: Hız ve Renk TYT">
-                </div>
-                <div class="form-group">
-                    <label>Toplam Net</label>
-                    <input type="number" step="0.25" id="dNet" placeholder="Örn: 75.5">
-                </div>
-                <div class="form-group">
-                    <label>Tarih</label>
-                    <input type="date" id="dTarih">
-                </div>
-                <button class="btn-submit" onclick="ekleDeneme()">Kaydet ve Grafiğe İşle</button>
-            </div>
-
-            <div class="card">
-                <div class="card-title" style="margin-bottom: 12px;">Geçmiş Denemeler</div>
-                <div id="listDeneme"></div>
+        <div class="card">
+            <label style="margin-bottom: 8px; display: block;">📈 Net Takip Grafiği</label>
+            <div class="chart-container">
+                <canvas id="netChart"></canvas>
             </div>
         </div>
+    </div>
 
-        <!-- 3. YANLIŞ DEFTERİ (TÜM KONULAR) -->
-        <div id="yanlis" class="tab-content">
-            <div class="card">
-                <div class="card-title" style="margin-bottom: 12px;">Yanlış Soru Kaydı</div>
-                <div class="form-group">
-                    <label>Ders</label>
-                    <select id="dersSel" onchange="loadKonular()">
-                        <option value="Turkce">Türkçe</option>
-                        <option value="Matematik">Matematik</option>
-                        <option value="Geometri">Geometri</option>
-                        <option value="Fizik">Fizik</option>
-                        <option value="Kimya">Kimya</option>
-                        <option value="Biyoloji">Biyoloji</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Konu</label>
-                    <select id="konuSel"></select>
-                </div>
-                <div class="form-group">
-                    <label>Not / Hata Nedeni</label>
-                    <textarea id="yNot" rows="2" placeholder="Dikkatsizlik, formül unutuldu vb."></textarea>
-                </div>
-                <button class="btn-submit" onclick="ekleYanlis()">Ortak Yanlışlar Tablosuna Ekle</button>
+    <!-- 2. DENEMELERİM -->
+    <div id="deneme" class="tab-content">
+        <div class="card">
+            <div class="header-title" style="font-size: 15px; margin-bottom: 8px;">Yeni Deneme Kaydı</div>
+            
+            <div class="form-group">
+                <label>Deneme Adı / Yayın</label>
+                <input type="text" id="denemeAdi" placeholder="Örn: Hız ve Renk TYT">
             </div>
 
-            <div class="card">
-                <div class="card-title" style="margin-bottom: 12px;">Ortak Yanlışlar Tablosu</div>
-                <div id="listYanlis"></div>
+            <div class="form-group">
+                <label>Toplam Net</label>
+                <input type="number" step="0.25" id="denemeNet" placeholder="Örn: 75.5">
             </div>
+
+            <div class="form-group">
+                <label>Tarih</label>
+                <input type="date" id="denemeTarih">
+            </div>
+
+            <button class="btn" onclick="denemeEkle()">Denemeyi Kaydet</button>
+        </div>
+
+        <div class="card">
+            <div class="header-title" style="font-size: 15px; margin-bottom: 8px;">Kaydedilen Denemeler</div>
+            <div id="denemeListesi"></div>
+        </div>
+    </div>
+
+    <!-- 3. YANLIŞ DEFTERİ (TÜM İSTEDİĞİN DERS VE KONULAR) -->
+    <div id="yanlis" class="tab-content">
+        <div class="card">
+            <div class="header-title" style="font-size: 15px; margin-bottom: 8px;">Yeni Yanlış Soru Kaydı</div>
+            
+            <div class="form-group">
+                <label>Ders Seçin</label>
+                <select id="dersSecimi" onchange="konulariGuncelle()">
+                    <option value="Turkce">Türkçe</option>
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Konu Seçin</label>
+                <select id="konuSecimi"></select>
+            </div>
+
+            <div class="form-group">
+                <label>Soru Notu / Açıklama</label>
+                <textarea id="soruNotu" rows="2" placeholder="Yanlış yapma sebebiniz..."></textarea>
+            </div>
+
+            <button class="btn" onclick="yanlisEkle()">Yanlışı Kaydet</button>
+        </div>
+
+        <div class="card">
+            <div class="header-title" style="font-size: 15px; margin-bottom: 8px;">Yanlış Defteri</div>
+            <div id="yanlisListesi"></div>
         </div>
     </div>
 </div>
 
 <script>
     const konularData = {
-        "Turkce": ["1. Sözcükte Anlam", "2. Cümlede Anlam", "3. Paragraf", "4. Ses Bilgisi", "5. Yazım Kuralları", "6. Noktalama İşaretleri", "7. Sözcükte Yapı", "8. Sözcük Türleri", "9. Fiiller", "10. Cümlenin Ögeleri", "11. Cümle Türleri", "Anlatım Bozukluğu"],
-        "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB – EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Denklem Çözme", "Sayı Problemleri", "Kesir Problemleri", "Yaş Problemleri", "Hareket Hız Problemleri", "İşçi Emek Problemleri", "Yüzde Problemleri", "Kar Zarar Problemleri", "Karışım Problemleri", "Grafik Problemleri", "Rutin Olmayan Problemleri", "Kümeler – Kartezyen Çarpım", "Mantık", "Fonksiyonlar", "Polinomlar", "2.Dereceden Denklemler", "Permütasyon ve Kombinasyon", "Olasılık", "Veri – İstatistik"],
-        "Geometri": ["Doğruda Açılar", "Üçgende Açılar", "Eşkenar Üçgen", "Açıortay", "Kenarortay", "Eşlik ve Benzerlik", "Üçgende Alan", "Üçgende Benzerlik", "Açı Kenar Bağıntıları", "Çokgenler", "Özel Dörtgenler", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler", "Çemberin Analitiği"],
-        "Fizik": ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Sıvıların Kaldırma Kuvveti", "Basınç", "Isı, Sıcaklık ve Genleşme", "Hareket ve Kuvvet", "Dinamik", "İş, Güç ve Enerji", "Elektrik", "Manyetizma", "Dalgalar", "Optik"],
-        "Kimya": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", "Doğa ve Kimya", "Kimyanın Temel Kanunları", "Kimyasal Hesaplamalar", "Karışımlar", "Asit, Baz ve Tuz", "Kimya Her Yerde"],
-        "Biyoloji": ["Canlıların Ortak Özellikleri", "Canlıların Temel Bileşenleri", "Hücre ve Organelleri", "Hücre Zarından Madde Geçişi", "Canlıların Sınıflandırılması", "Mitoz ve Eşeysiz Üreme", "Mayoz ve Eşeyli Üreme", "Kalıtım", "Ekosistem Ekolojisi", "Güncel Çevre Sorunları"]
+        "Turkce": [
+            "1. Sözcükte Anlam", "2. Cümlede Anlam", "3. Paragraf", "4. Ses Bilgisi", 
+            "5. Yazım Kuralları", "6. Noktalama İşaretleri", "7. Sözcükte Yapı", 
+            "8. Sözcük Türleri", "9. Fiiller", "10. Cümlenin Ögeleri", "11. Cümle Türleri", "Anlatım Bozukluğu"
+        ],
+        "Matematik": [
+            "Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB – EKOK", 
+            "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", 
+            "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Denklem Çözme", 
+            "Sayı Problemleri", "Kesir Problemleri", "Yaş Problemleri", "Hareket Hız Problemleri", 
+            "İşçi Emek Problemleri", "Yüzde Problemleri", "Kar Zarar Problemleri", "Karışım Problemleri", 
+            "Grafik Problemleri", "Rutin Olmayan Problemleri", "Kümeler – Kartezyen Çarpım", "Mantık", 
+            "Fonksiyonlar", "Polinomlar", "2.Dereceden Denklemler", "Permütasyon ve Kombinasyon", 
+            "Olasılık", "Veri – İstatistik"
+        ],
+        "Geometri": [
+            "Doğruda Açılar", "Üçgende Açılar", "Eşkenar Üçgen", "Açıortay", "Kenarortay", 
+            "Eşlik ve Benzerlik", "Üçgende Alan", "Üçgende Benzerlik", "Açı Kenar Bağıntıları", 
+            "Çokgenler", "Özel Dörtgenler", "Çember ve Daire", "Analitik Geometri", 
+            "Katı Cisimler", "Çemberin Analitiği"
+        ],
+        "Fizik": [
+            "Fizik Bilimine Giriş", "Madde ve Özellikleri", "Sıvıların Kaldırma Kuvveti", "Basınç", 
+            "Isı, Sıcaklık ve Genleşme", "Hareket ve Kuvvet", "Dinamik", "İş, Güç ve Enerji", 
+            "Elektrik", "Manyetizma", "Dalgalar", "Optik"
+        ],
+        "Kimya": [
+            "Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", 
+            "Maddenin Halleri", "Doğa ve Kimya", "Kimyanın Temel Kanunları", "Kimyasal Hesaplamalar", 
+            "Karışımlar", "Asit, Baz ve Tuz", "Kimya Her Yerde"
+        ],
+        "Biyoloji": [
+            "Canlıların Ortak Özellikleri", "Canlıların Temel Bileşenleri", "Hücre ve Organelleri", 
+            "Hücre Zarından Madde Geçişi", "Canlıların Sınıflandırılması", "Mitoz ve Eşeysiz Üreme", 
+            "Mayoz ve Eşeyli Üreme", "Kalıtım", "Ekosistem Ekolojisi", "Güncel Çevre Sorunları"
+        ]
     };
 
-    let denemeler = JSON.parse(localStorage.getItem('tyt_d')) || [];
-    let yanlislar = JSON.parse(localStorage.getItem('tyt_y')) || [];
-    let chartInstance = null;
+    let denemeler = JSON.parse(localStorage.getItem('tyt_denemeler')) || [];
+    let yanlislar = JSON.parse(localStorage.getItem('tyt_yanlislar')) || [];
+    let netChart = null;
 
-    function toggleView(mode) {
-        const codeArea = document.getElementById('codeViewArea');
-        const previewArea = document.getElementById('previewContainer');
-        const btnC = document.getElementById('btnCode');
-        const btnP = document.getElementById('btnPreview');
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
 
-        if(mode === 'code') {
-            codeArea.style.display = 'block';
-            previewArea.style.display = 'none';
-            btnC.classList.add('active');
-            btnP.classList.remove('active');
-            codeArea.textContent = document.documentElement.outerHTML;
-        } else {
-            codeArea.style.display = 'none';
-            previewArea.style.display = 'flex';
-            btnP.classList.add('active');
-            btnC.classList.remove('active');
-        }
+        if(tabId === 'genel') guncelleIstatistikler();
     }
 
-    function switchTab(id, event) {
-        document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(event && event.currentTarget) event.currentTarget.classList.add('active');
-        if(id === 'genel') renderAll();
-    }
-
-    function loadKonular() {
-        const ders = document.getElementById('dersSel').value;
-        const kSel = document.getElementById('konuSel');
-        kSel.innerHTML = '';
-        if(konularData[ders]) {
-            konularData[ders].forEach(k => {
+    function konulariGuncelle() {
+        const ders = document.getElementById('dersSecimi').value;
+        const konuSelect = document.getElementById('konuSecimi');
+        konuSelect.innerHTML = '';
+        
+        if (konularData[ders]) {
+            konularData[ders].forEach(konu => {
                 let opt = document.createElement('option');
-                opt.value = k; 
-                opt.textContent = k;
-                kSel.appendChild(opt);
+                opt.value = konu;
+                opt.textContent = konu;
+                konuSelect.appendChild(opt);
             });
         }
     }
 
-    function ekleDeneme() {
-        const adi = document.getElementById('dAdi').value;
-        const net = parseFloat(document.getElementById('dNet').value);
-        const tarih = document.getElementById('dTarih').value || new Date().toISOString().split('T')[0];
-        if(!adi || isNaN(net)) return alert('Lütfen deneme adını ve netini girin.');
-        denemeler.push({ adi, net, tarih });
-        localStorage.setItem('tyt_d', JSON.stringify(denemeler));
-        document.getElementById('dAdi').value = ''; 
-        document.getElementById('dNet').value = '';
-        renderAll();
-        alert('Deneme sonucu kaydedildi!');
+    konulariGuncelle();
+
+    function denemeEkle() {
+        const adi = document.getElementById('denemeAdi').value;
+        const net = parseFloat(document.getElementById('denemeNet').value);
+        const tarih = document.getElementById('denemeTarih').value;
+
+        if(!adi || isNaN(net)) {
+            alert('Lütfen deneme adını ve netini doğru girin.');
+            return;
+        }
+
+        denemeler.push({ adi, net, tarih: tarih || new Date().toISOString().split('T')[0] });
+        localStorage.setItem('tyt_denemeler', JSON.stringify(denemeler));
+        
+        document.getElementById('denemeAdi').value = '';
+        document.getElementById('denemeNet').value = '';
+        
+        listeleriGuncelle();
+        alert('Deneme başarıyla kaydedildi!');
     }
 
-    function ekleYanlis() {
-        const ders = document.getElementById('dersSel').value;
-        const konu = document.getElementById('konuSel').value;
-        const notu = document.getElementById('yNot').value;
-        yanlislar.push({ ders, konu, notu, cozuldum: false });
-        localStorage.setItem('tyt_y', JSON.stringify(yanlislar));
-        document.getElementById('yNot').value = '';
-        renderAll();
-        alert('Yanlış soru tablonuza eklendi!');
+    function yanlisEkle() {
+        const ders = document.getElementById('dersSecimi').value;
+        const konu = document.getElementById('konuSecimi').value;
+        const notu = document.getElementById('soruNotu').value;
+
+        yanlislar.push({ ders, konu, notu, cozuldu: false });
+        localStorage.setItem('tyt_yanlislar', JSON.stringify(yanlislar));
+
+        document.getElementById('soruNotu').value = '';
+        listeleriGuncelle();
+        alert('Yanlış soru deftere eklendi!');
     }
 
-    function toggleYanlisDurum(i) {
-        yanlislar[i].cozuldum = !yanlislar[i].cozuldum;
-        localStorage.setItem('tyt_y', JSON.stringify(yanlislar));
-        renderAll();
+    function denemeSil(index) {
+        denemeler.splice(index, 1);
+        localStorage.setItem('tyt_denemeler', JSON.stringify(denemeler));
+        listeleriGuncelle();
     }
 
-    function silDeneme(i) { 
-        denemeler.splice(i,1); 
-        localStorage.setItem('tyt_d', JSON.stringify(denemeler)); 
-        renderAll(); 
-    }
-    
-    function silYanlis(i) { 
-        yanlislar.splice(i,1); 
-        localStorage.setItem('tyt_y', JSON.stringify(yanlislar)); 
-        renderAll(); 
+    function yanlisSil(index) {
+        yanlislar.splice(index, 1);
+        localStorage.setItem('tyt_yanlislar', JSON.stringify(yanlislar));
+        listeleriGuncelle();
     }
 
-    function renderAll() {
-        let cozulenSayisi = yanlislar.filter(y => y.cozuldum).length;
-        let bekleyenSayisi = yanlislar.length - cozulenSayisi;
-
-        document.getElementById('valDeneme').textContent = denemeler.length;
-        document.getElementById('valYanlis').textContent = yanlislar.length;
-        document.getElementById('valCozulen').textContent = cozulenSayisi;
-        document.getElementById('valBekleyen').textContent = bekleyenSayisi;
-
-        const dL = document.getElementById('listDeneme');
-        dL.innerHTML = denemeler.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz deneme kaydı yok.</div>';
-        denemeler.forEach((d, i) => {
-            dL.innerHTML += `
+    function listeleriGuncelle() {
+        const dList = document.getElementById('denemeListesi');
+        dList.innerHTML = denemeler.length === 0 ? '<div class="item-details">Henüz deneme eklenmedi.</div>' : '';
+        denemeler.forEach((d, index) => {
+            dList.innerHTML += `
                 <div class="list-item">
-                    <div>
-                        <b>${d.adi}</b> <span style="color:#8a99ad; font-size:12px;">(${d.tarih})</span><br>
-                        <span style="color:#f59e0b; font-weight:bold;">${d.net} Net</span>
+                    <div class="item-info">
+                        <div class="item-title">${d.adi}</div>
+                        <div class="item-details">Net: <b>${d.net}</b> | Tarih: ${d.tarih}</div>
                     </div>
-                    <button class="btn-del" onclick="silDeneme(${i})">Sil</button>
-                </div>`;
+                    <button class="btn btn-danger" onclick="denemeSil(${index})">Sil</button>
+                </div>
+            `;
         });
 
-        const yL = document.getElementById('listYanlis');
-        yL.innerHTML = yanlislar.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz kayıtlı yanlış soru yok.</div>';
-        yanlislar.forEach((y, i) => {
-            let statusClass = y.cozuldum ? 'status-done' : '';
-            let btnText = y.cozuldum ? '✓ Anlaşıldı' : 'Çözüldü İşaretle';
-            yL.innerHTML += `
-                <div class="list-item ${statusClass}">
-                    <div>
-                        <b>[${y.ders}] ${y.konu}</b><br>
-                        <span style="color:#8a99ad; font-size:12px;">${y.notu || 'Not girilmedi'}</span>
+        const yList = document.getElementById('yanlisListesi');
+        yList.innerHTML = yanlislar.length === 0 ? '<div class="item-details">Yanlış defteriniz boş.</div>' : '';
+        yanlislar.forEach((y, index) => {
+            yList.innerHTML += `
+                <div class="list-item">
+                    <div class="item-info">
+                        <div class="item-title">[${y.ders}] ${y.konu}</div>
+                        <div class="item-details">${y.notu || 'Not girilmedi'}</div>
                     </div>
-                    <div class="item-actions">
-                        <button class="btn-check" onclick="toggleYanlisDurum(${i})">${btnText}</button>
-                        <button class="btn-del" onclick="silYanlis(${i})">Sil</button>
-                    </div>
-                </div>`;
+                    <button class="btn btn-danger" onclick="yanlisSil(${index})">Sil</button>
+                </div>
+            `;
         });
+
+        guncelleIstatistikler();
+    }
+
+    function guncelleIstatistikler() {
+        document.getElementById('statTotalDeneme').textContent = denemeler.length;
+        
+        let toplamNet = denemeler.reduce((acc, curr) => acc + curr.net, 0);
+        let ort = denemeler.length > 0 ? (toplamNet / denemeler.length).toFixed(2) : '0.0';
+        document.getElementById('statAvgNet').textContent = ort;
+        
+        document.getElementById('statTotalYanlis').textContent = yanlislar.length;
+        document.getElementById('statBekleyenYanlis').textContent = yanlislar.filter(y => !y.cozuldu).length;
 
         const ctx = document.getElementById('netChart').getContext('2d');
-        if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
+        const labels = denemeler.map(d => d.adi);
+        const data = denemeler.map(d => d.net);
+
+        if(netChart) netChart.destroy();
+
+        netChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: denemeler.map(d => d.adi),
+                labels: labels,
                 datasets: [{
-                    label: 'Net Grafiği',
-                    data: denemeler.map(d => d.net),
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    label: 'Net Gelişimi',
+                    data: data,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.3
@@ -648,17 +489,15 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, grid: { color: '#172033' }, ticks: { color: '#8a99ad' } },
-                    x: { grid: { color: '#172033' }, ticks: { color: '#8a99ad' } }
+                    y: { beginAtZero: true, grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                    x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } }
                 },
-                plugins: { legend: { display: false } }
+                plugins: { legend: { labels: { color: '#f3f4f6' } } }
             }
         });
     }
 
-    // İlk çalıştırma trigger'ları
-    loadKonular();
-    renderAll();
+    listeleriGuncelle();
 </script>
 
 </body>
