@@ -1,1195 +1,208 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TYT Analiz Pro - Sınav Takip ve Net Analiz Sistemi</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
+    <title>TYT Analiz Pro</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        :root {
+            --bg-dark: #0b0f19;
+            --card-bg: #121826;
+            --card-border: #1e293b;
+            --primary: #6366f1;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-yellow: #eab308;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 24px; border-radius: 14px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .logo-area h1 { font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
+        .logo-area p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+        
+        .nav-tabs { display: flex; gap: 10px; }
+        .tab-btn { background: #1e293b; border: 1px solid #334155; color: var(--text-main); padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active, .tab-btn:hover { background: #d97706; border-color: #f59e0b; color: #fff; font-weight: 600; }
+
+        /* Top Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .stat-info span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .stat-info h3 { font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 4px; }
+        .stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .icon-blue { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .icon-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .icon-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+
+        /* Main Content Layout */
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px; }
+        @media(max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-size: 1rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
+
+        /* Chart Area */
+        .chart-container { position: relative; height: 260px; width: 100%; }
+
+        /* Lessons Breakdown */
+        .lessons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .lesson-box { background: #0f172a; border: 1px solid #1e293b; padding: 14px; border-radius: 10px; cursor: pointer; transition: border-color 0.2s; }
+        .lesson-box:hover { border-color: #6366f1; }
+        .lesson-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; color: #e2e8f0; }
+        .lesson-stats { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
+        .badge { background: #1e293b; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; color: #cbd5e1; }
+
+        /* Table Section */
+        .table-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px; }
+        .table-header { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: #fff; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { color: var(--text-muted); font-weight: 500; padding: 10px; border-bottom: 1px solid var(--card-border); font-size: 0.8rem; text-transform: uppercase; }
+        td { padding: 12px 10px; border-bottom: 1px solid #1e293b; color: #e2e8f0; }
+        .empty-row { text-align: center; color: var(--text-muted); padding: 24px; font-size: 0.85rem; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
-
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-amber-500 to-amber-400 p-2.5 rounded-xl shadow-lg shadow-amber-500/20 text-slate-950">
-                    <i class="fa-solid fa-chart-line text-2xl font-black"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                        TYT ANALİZ <span class="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">PRO</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 font-medium">YKS & TYT Sınav Takip ve Net Analiz Sistemi</p>
-                </div>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-area">
+                <h1>📊 TYT ANALİZ</h1>
+                <p>YKS & TYT Sınav Takip ve Net Analiz Sistemi</p>
             </div>
-            
-            <nav class="flex bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 shadow-inner">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md">
-                    <i class="fa-solid fa-chart-pie mr-2"></i>Genel İstatistikler
-                </button>
-                <button onclick="switchTab('exams')" id="nav-exams" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/60">
-                    <i class="fa-solid fa-folder-open mr-2"></i>Denemelerim
-                </button>
-                <button onclick="switchTab('analysis')" id="nav-analysis" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/60">
-                    <i class="fa-solid fa-list-check mr-2"></i>Ortak Yanlışlar Tablosu
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-        <!-- TAB 1: DASHBOARD -->
-        <section id="tab-dashboard" class="space-y-6">
-            <!-- Top Summary Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Toplam Deneme</p>
-                        <h3 id="stat-total-exams" class="text-3xl font-extrabold text-white mt-1">0</h3>
-                    </div>
-                    <div class="p-3.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                        <i class="fa-solid fa-file-signature text-xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Toplam Yanlış Soru</p>
-                        <h3 id="stat-total-wrongs" class="text-3xl font-extrabold text-rose-400 mt-1">0</h3>
-                    </div>
-                    <div class="p-3.5 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
-                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Çözülen / Anlaşılan</p>
-                        <h3 id="stat-resolved-wrongs" class="text-3xl font-extrabold text-emerald-400 mt-1">0</h3>
-                    </div>
-                    <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                        <i class="fa-solid fa-circle-check text-xl"></i>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Bekleyen Yanlışlar</p>
-                            <button onclick="clearAllData()" class="text-[10px] text-rose-400 hover:text-rose-300 underline font-semibold">Sıfırla</button>
-                        </div>
-                        <h3 id="stat-pending-wrongs" class="text-3xl font-extrabold text-amber-400 mt-1">0</h3>
-                    </div>
-                    <div class="p-3.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
-                        <i class="fa-solid fa-hourglass-half text-xl"></i>
-                    </div>
-                </div>
+            <div class="nav-tabs">
+                <button class="tab-btn active">Genel İstatistikler</button>
+                <button class="tab-btn">Denemelerim</button>
+                <button class="tab-btn">Ortak Yanlışlar</button>
             </div>
+        </header>
 
-            <!-- Net Takip Grafiği ve Ders Analiz Kartları -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
-                <!-- Net Takip Grafiği -->
-                <div class="lg:col-span-7 bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
-                        <div>
-                            <h2 class="text-base font-bold text-white flex items-center gap-2">
-                                <i class="fa-solid fa-chart-line text-amber-400"></i> Net Takip Grafiği & Gelişim Eğrisi
-                            </h2>
-                            <p class="text-xs text-slate-400">Deneme tarihlerine tıklayarak doğrudan düzenleyebilirsiniz.</p>
-                        </div>
-
-                        <!-- Periyot Butonları -->
-                        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
-                            <button onclick="setNetPeriod('weekly')" id="period-weekly" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">Haftalık</button>
-                            <button onclick="setNetPeriod('biweekly')" id="period-biweekly" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">Birkaç Haftalık</button>
-                            <button onclick="setNetPeriod('monthly')" id="period-monthly" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">Bir Aylık</button>
-                            <button onclick="setNetPeriod('all')" id="period-all" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold shadow transition">Tümü</button>
-                        </div>
-                    </div>
-
-                    <div class="h-72 w-full relative">
-                        <canvas id="netTrendChart"></canvas>
-                    </div>
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>Toplam Deneme</span>
+                    <h3 id="totalDeneme">0</h3>
                 </div>
-
-                <!-- Ders Bazlı Yanlış Oranları -->
-                <div class="lg:col-span-5 bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                    <div class="border-b border-slate-800 pb-4">
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-pie-chart text-indigo-400"></i> Ders Bazlı Yanlış Oranları
-                        </h2>
-                        <p class="text-xs text-slate-400">Detaylarını görmek istediğiniz dersin üzerine tıklayın.</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3" id="subject-cards-grid">
-                        <!-- Dynamic subject cards -->
-                    </div>
-                </div>
+                <div class="stat-icon icon-blue">📝</div>
             </div>
-
-            <!-- Seçili Ders Konu Tablosu -->
-            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <h3 class="font-bold text-white text-base">
-                        Seçili Ders Konu Dağılımı: <span id="dash-subject-title" class="text-amber-400 font-extrabold">Türkçe</span>
-                    </h3>
-                    <span class="text-xs text-slate-400 font-medium">Bilgi ve Dikkat Eksikliği Yan Yan Liste</span>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>Toplam Yanlış Soru</span>
+                    <h3 id="totalYanlis">0</h3>
                 </div>
-
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-sm text-slate-300">
-                        <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 tracking-wider border-b border-slate-800">
-                            <tr>
-                                <th class="py-3 px-4 font-semibold">Konu Adı</th>
-                                <th class="py-3 px-4 text-center text-indigo-400 font-bold">📚 Bilgi Eksikliği</th>
-                                <th class="py-3 px-4 text-center text-amber-400 font-bold">🎯 Dikkat Eksikliği</th>
-                                <th class="py-3 px-4 text-center text-white font-bold">📊 Toplam Yanlış Soru</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dash-topic-tbody" class="divide-y divide-slate-800">
-                            <!-- Dynamic Topic Rows -->
-                        </tbody>
-                    </table>
-                </div>
+                <div class="stat-icon icon-red">⚠️</div>
             </div>
-        </section>
-
-        <!-- TAB 2: EXAMS -->
-        <section id="tab-exams" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-folder-open text-amber-400"></i> Denemelerim
-                    </h2>
-                    <p class="text-xs text-slate-400">Denemelere tıklayarak soru ekleyebilir, durumlarını (Doğru/Yanlış/Boş) işaretleyebilirsiniz.</p>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>Çözülen / Anlaşılan</span>
+                    <h3 id="totalCozulen">0</h3>
                 </div>
-                <button onclick="openExamModal()" class="bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-lg shadow-amber-500/20 flex items-center gap-2">
-                    <i class="fa-solid fa-plus text-base"></i> Yeni Deneme Ekle
-                </button>
+                <div class="stat-icon icon-green">✅</div>
             </div>
-
-            <!-- Exam Cards Container -->
-            <div id="exams-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Dynamically populated -->
-            </div>
-        </section>
-
-        <!-- TAB 3: COMMON MISTAKES ACCORDION TABLE -->
-        <section id="tab-analysis" class="space-y-6 hidden">
-            <div class="bg-slate-900/90 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-amber-400"></i> Ortak Yanlışlar Tablosu (Konu Ağacı)
-                        </h2>
-                        <p class="text-xs text-slate-400">Tüm denemelerinizden biriken ortak yanlışlar konularına göre gruplanmıştır. Anladıklarınıza tik atın!</p>
-                    </div>
-
-                    <!-- Subject Filter Buttons -->
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="setAnalysisSubject('Tümü')" id="subj-btn-Tümü" class="subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-950 shadow">Tüm Dersler</button>
-                        <button onclick="setAnalysisSubject('Türkçe')" id="subj-btn-Türkçe" class="subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Türkçe</button>
-                        <button onclick="setAnalysisSubject('Sosyal Bilgiler')" id="subj-btn-Sosyal Bilgiler" class="subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Sosyal</button>
-                        <button onclick="setAnalysisSubject('Temel Matematik')" id="subj-btn-Temel Matematik" class="subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Matematik</button>
-                        <button onclick="setAnalysisSubject('Fen Bilimleri')" id="subj-btn-Fen Bilimleri" class="subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 hover:text-white border border-slate-800">Fen</button>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span>Bekleyen Yanlışlar</span>
+                    <h3 id="totalBekleyen">0</h3>
                 </div>
-
-                <!-- Status Filter Bar -->
-                <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
-                    <div>Seçili Filtre: <span id="current-subject-label" class="font-bold text-amber-400">Tüm Dersler</span></div>
-                    <select id="filter-status" onchange="renderAnalysisTable()" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                        <option value="">Tüm Sorular (Bekleyen + Anlaşılan)</option>
-                        <option value="pending">Sadece Bekleyen Yanlışlar</option>
-                        <option value="resolved">Sadece Anlaşılanlar (Tik Atılanlar)</option>
-                    </select>
-                </div>
-
-                <!-- Accordion Tree -->
-                <div id="analysis-accordion-container" class="space-y-3">
-                    <!-- Dynamic items -->
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- MODAL: ADD / EDIT EXAM WITH STRICT BRANCH LIMIT SYSTEM -->
-    <div id="exam-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-800 max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-                <div>
-                    <h3 id="modal-exam-title" class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-file-circle-plus text-amber-400"></i> Yeni Deneme Ekle
-                    </h3>
-                    <p class="text-xs text-slate-400">Alt branş soru sınırları (Tarih max 5, Matematik max 30 vb.) ile tam kontrollü soru girişi yapabilirsiniz.</p>
-                </div>
-                <button onclick="closeModal('exam-modal')" class="text-slate-400 hover:text-white p-1 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="py-4 overflow-y-auto flex-1 space-y-5 custom-scrollbar pr-2">
-                <!-- Exam Metadata -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Deneme / Yayın Adı</label>
-                        <input type="text" id="exam-name" required placeholder="Örn: 3D Yayınları TYT-1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Tarih</label>
-                        <input type="date" id="exam-date" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-
-                <!-- Subject Tabs inside Exam Modal -->
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <div class="flex space-x-2 overflow-x-auto">
-                        <button onclick="switchExamModalTab('Türkçe')" id="exam-tab-Türkçe" class="exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-950">Türkçe</button>
-                        <button onclick="switchExamModalTab('Sosyal Bilgiler')" id="exam-tab-Sosyal Bilgiler" class="exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-800">Sosyal Bilgiler</button>
-                        <button onclick="switchExamModalTab('Temel Matematik')" id="exam-tab-Temel Matematik" class="exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-800">Temel Matematik</button>
-                        <button onclick="switchExamModalTab('Fen Bilimleri')" id="exam-tab-Fen Bilimleri" class="exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-800">Fen Bilimleri</button>
-                    </div>
-
-                    <!-- Question Counter Badge for Selected Subject -->
-                    <div id="subject-question-counter" class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-bold">
-                        Ders Toplamı: <span id="counter-current" class="text-amber-400">0</span> / <span id="counter-max" class="text-slate-400">40</span>
-                    </div>
-                </div>
-
-                <!-- Topic Status Selection List -->
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-400 px-1">
-                        <span><span id="form-subject-label" class="text-amber-400">Türkçe</span> Branş ve Konu Listesi</span>
-                        <span class="text-slate-500 font-normal">Her branş kendi max soru sınırına sahiptir.</span>
-                    </div>
-
-                    <div id="exam-subject-topics-container" class="space-y-3">
-                        <!-- Dynamic Smart Question Status Rows -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-slate-800 flex justify-end space-x-3">
-                <button type="button" onclick="closeModal('exam-modal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 transition">İptal</button>
-                <button type="button" onclick="saveExamFromModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2 rounded-xl text-xs font-extrabold transition shadow-lg shadow-amber-500/20">Denemeyi Kaydet</button>
+                <div class="stat-icon icon-yellow">⏳</div>
             </div>
         </div>
-    </div>
 
-    <!-- MESSAGE MODAL -->
-    <div id="message-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-800 text-center space-y-4">
-            <div id="message-icon" class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto text-xl border border-amber-500/20">
-                <i class="fa-solid fa-circle-check"></i>
+        <!-- Main Grid: Graph & Lessons -->
+        <div class="main-grid">
+            <!-- Net Tracking Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📈 Net Takip Grafiği & Gelişim Eğrisi</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="netChart"></canvas>
+                </div>
             </div>
-            <div>
-                <h3 id="message-title" class="text-base font-bold text-white mb-1">Başarılı</h3>
-                <p id="message-text" class="text-xs text-slate-400">İşlem gerçekleştirildi.</p>
-            </div>
-            <button onclick="closeModal('message-modal')" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-xl text-xs font-bold transition">Tamam</button>
-        </div>
-    </div>
 
-    <!-- JavaScript Application Core -->
-    <script>
-        // Sub-branched TYT Topics with explicit strict question limits per sub-branch
-        const TYT_BRANCHED_TOPICS = {
-            'Türkçe': [
-                {
-                    branch: 'Türkçe Müfredatı',
-                    range: '1 - 40. Sorular',
-                    limit: 40,
-                    topics: [
-                        'Sözcükte Anlam', 'Cümlede Anlam', 'Paragraf (Ana Düşünce & Yardımcı Düşünce)', 
-                        'Paragraf (Yapı & Akış Bozma)', 'Paragraf (Anlatım Teknikleri)', 
-                        'Ses Bilgisi', 'Yazım Kuralları', 'Noktalama İşaretleri', 
-                        'Sözcükte Yapı / Ekler', 'İsimler & Sıfatlar', 'Zamirler & Zarf', 
-                        'Edat, Bağlaç, Ünlem', 'Fiiller & Fiilde Çatı', 'Fiilimsiler (Eylemsi)', 
-                        'Cümlenin Ögeleri', 'Cümle Türleri', 'Anlatım Bozuklukları'
-                    ]
-                }
-            ],
-            'Sosyal Bilgiler': [
-                {
-                    branch: '📜 Tarih',
-                    range: '1 - 5. Sorular',
-                    limit: 5,
-                    topics: [
-                        'Tarih Bilimine Giriş & İlk Çağ Uygarlıkları', 'İslam Öncesi Türk Tarihi', 
-                        'İslam Tarihi ve Uygarlığı', 'İlk Türk-İslam Devletleri', 
-                        'Osmanlı Kuruluş ve Yükselme Dönemi', 'Osmanlı Kültür ve Medeniyeti', 
-                        'Milli Mücadele & İnkılap Tarihi', 'Atatürkçülük ve İlkeleri'
-                    ]
-                },
-                {
-                    branch: '🗺️ Coğrafya',
-                    range: '6 - 10. Sorular',
-                    limit: 5,
-                    topics: [
-                        'Doğa ve İnsan & Harita Bilgisi', 'İklim Bilgisi & Türleri', 
-                        'Türkiye\'nin İklimi ve Yeryüzü Şekilleri', 'Nüfus ve Yerleşme', 
-                        'Afetler ve Çevre'
-                    ]
-                },
-                {
-                    branch: '🧠 Felsefe',
-                    range: '11 - 15. Sorular',
-                    limit: 5,
-                    topics: [
-                        'Felsefenin Alanı ve Konusu', 'Bilgi ve Varlık Felsefesi', 
-                        'Ahlak, Sanat ve Din Felsefesi', 'Siyaset Felsefesi'
-                    ]
-                },
-                {
-                    branch: '🕌 Din Kültürü ve Ahlak Bilgisi',
-                    range: '16 - 20. Sorular',
-                    limit: 5,
-                    topics: [
-                        'Kur\'an-ı Kerim ve Temel İbadetler', 'İnanç Esasları & Hz. Muhammed', 
-                        'İslam Düşüncesinde Yorumlar & Ahlak'
-                    ]
-                }
-            ],
-            'Temel Matematik': [
-                {
-                    branch: '📐 Matematik',
-                    range: '1 - 30. Sorular',
-                    limit: 30,
-                    topics: [
-                        'Temel Kavramlar & Sayı Kümeleri', 'Tek - Çift Sayılar & Ardışık Sayılar', 
-                        'Bölme - Bölünebilme Kuralları', 'Asal Sayılar & EBOB-EKOK', 
-                        'Rasyonel ve Ondalık Sayılar', 'I. Dereceden Denklem ve Eşitsizlikler', 
-                        'Mutlak Değer', 'Üslü İfadeler', 'Köklü İfadeler', 
-                        'Çarpanlara Ayırma', 'Oran - Orantı', 'Sayı ve Kesir Problemleri', 
-                        'Yaş Problemleri', 'Yüzde, Kâr-Zarar ve Faiz Problemleri', 
-                        'Hız - Hareket Problemleri', 'Rutin Olmayan Problemler / Mantık', 
-                        'Kümeler ve Kartezyen Çarpım', 'Fonksiyonlar (Temel Düzey)', 
-                        'Permütasyon ve Kombinasyon', 'Olasılık ve İstatistik'
-                    ]
-                },
-                {
-                    branch: '📏 Geometri',
-                    range: '31 - 40. Sorular',
-                    limit: 10,
-                    topics: [
-                        'Doğruda ve Üçgende Açılar', 'Özel Üçgenler (Dik, İkizkenar, Eşkenar)', 
-                        'Üçgende Alan ve Açıortay/Kenarortay', 'Çokgenler ve Dörtgenler', 
-                        'Özel Dörtgenler (Paralelkenar, Eşkenar Dörtgen, Yamuk)', 
-                        'Çember ve Daire', 'Katı Cisimler (Prizma, Piramit, Silindir, Koni)'
-                    ]
-                }
-            ],
-            'Fen Bilimleri': [
-                {
-                    branch: '⚡ Fizik',
-                    range: '1 - 7. Sorular',
-                    limit: 7,
-                    topics: [
-                        'Fizik Bilimine Giriş & Büyüklükler', 'Madde ve Özellikleri', 
-                        'Hareket ve Kuvvet', 'İş, Güç ve Enerji', 
-                        'Isı, Sıcaklık ve Genleşme', 'Basınç ve Kaldırma Kuvveti', 
-                        'Elektrik ve Mıknatıslık', 'Optik & Dalgalar'
-                    ]
-                },
-                {
-                    branch: '🧪 Kimya',
-                    range: '8 - 14. Sorular',
-                    limit: 7,
-                    topics: [
-                        'Kimya Bilimi & Simyadan Kimyaya', 'Atom Modelleri ve Yapısı', 
-                        'Periyodik Sistem ve Özellikleri', 'Kimyasal Türler Arası Etkileşimler', 
-                        'Maddenin Halleri', 'Kimyanın Temel Kanunları & Mol Kavramı', 
-                        'Asitler, Bazlar ve Tuzlar', 'Karışımlar'
-                    ]
-                },
-                {
-                    branch: '🧬 Biyoloji',
-                    range: '15 - 20. Sorular',
-                    limit: 6,
-                    topics: [
-                        'Canlıların Ortak Özellikleri', 'Hücre Yapısı ve Organeller', 
-                        'Canlıların Sınıflandırılması', 'Hücre Bölünmeleri (Mitoz & Mayoz)', 
-                        'Kalıtım ve İnsan Genetiği', 'Ekosistem Ekolojisi'
-                    ]
-                }
-            ]
-        };
-
-        const SUBJECT_QUESTION_LIMITS = {
-            'Türkçe': 40,
-            'Sosyal Bilgiler': 20,
-            'Temel Matematik': 40,
-            'Fen Bilimleri': 20
-        };
-
-        // Application State with LocalStorage Persistence
-        let appState = loadDataFromStorage();
-        let netTrendChartInstance = null;
-
-        // Modal State
-        let editingExamId = null;
-        let currentModalSubject = 'Türkçe';
-        let modalMistakes = {};
-
-        window.onload = function() {
-            document.getElementById('exam-date').valueAsDate = new Date();
-            updateAllViews();
-        };
-
-        function loadDataFromStorage() {
-            const saved = localStorage.getItem('tyt_analiz_pro_v5_state');
-            if (saved) {
-                try {
-                    return JSON.parse(saved);
-                } catch(e) { console.error(e); }
-            }
-            return {
-                exams: [],
-                activeSubjectTab: 'Türkçe',
-                activeAnalysisSubject: 'Tümü',
-                netPeriod: 'all'
-            };
-        }
-
-        function saveDataToStorage() {
-            localStorage.setItem('tyt_analiz_pro_v5_state', JSON.stringify(appState));
-        }
-
-        function updateAllViews() {
-            saveDataToStorage();
-            renderDashboard();
-            renderExams();
-            renderAnalysisTable();
-        }
-
-        function clearAllData() {
-            if (confirm("Tüm denemelerinizi ve kaydedilmiş analizlerinizi silmek istediğinizden emin misiniz?")) {
-                appState.exams = [];
-                updateAllViews();
-                showMessage("Sıfırlandı", "Tüm verileriniz temizlendi.", "warn");
-            }
-        }
-
-        function switchTab(tabName) {
-            const tabs = ['dashboard', 'exams', 'analysis'];
-            tabs.forEach(tab => {
-                const section = document.getElementById(`tab-${tab}`);
-                const navBtn = document.getElementById(`nav-${tab}`);
-                if (tab === tabName) {
-                    section.classList.remove('hidden');
-                    navBtn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md";
-                } else {
-                    section.classList.add('hidden');
-                    navBtn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/60";
-                }
-            });
-
-            if (tabName === 'dashboard') {
-                renderDashboard();
-            }
-        }
-
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-        }
-
-        function showMessage(title, message, type = 'success') {
-            document.getElementById('message-title').innerText = title;
-            document.getElementById('message-text').innerText = message;
-            const iconEl = document.getElementById('message-icon');
-            if (type === 'warn' || type === 'error') {
-                iconEl.className = "w-12 h-12 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center mx-auto text-xl border border-rose-500/20";
-                iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-            } else {
-                iconEl.className = "w-12 h-12 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto text-xl border border-amber-500/20";
-                iconEl.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-            }
-            openModal('message-modal');
-        }
-
-        // --- DASHBOARD LOGIC ---
-        function renderDashboard() {
-            let totalExams = appState.exams.length;
-            let totalWrongs = 0;
-            let resolvedWrongs = 0;
-
-            const subjectCounts = {
-                'Türkçe': { totalWrongs: 0, resolvedWrongs: 0, topics: {} },
-                'Sosyal Bilgiler': { totalWrongs: 0, resolvedWrongs: 0, topics: {} },
-                'Temel Matematik': { totalWrongs: 0, resolvedWrongs: 0, topics: {} },
-                'Fen Bilimleri': { totalWrongs: 0, resolvedWrongs: 0, topics: {} }
-            };
-
-            appState.exams.forEach(exam => {
-                if (!exam.items) return;
-                Object.keys(exam.items).forEach(subj => {
-                    Object.keys(exam.items[subj]).forEach(topic => {
-                        const questionList = exam.items[subj][topic];
-                        if (Array.isArray(questionList)) {
-                            questionList.forEach(q => {
-                                if (q.status === 'yanlis') {
-                                    totalWrongs++;
-                                    if (q.resolved) resolvedWrongs++;
-
-                                    if (subjectCounts[subj]) {
-                                        subjectCounts[subj].totalWrongs++;
-                                        if (q.resolved) subjectCounts[subj].resolvedWrongs++;
-
-                                        if (!subjectCounts[subj].topics[topic]) {
-                                            subjectCounts[subj].topics[topic] = { total: 0, bilgi: 0, dikkat: 0 };
-                                        }
-                                        subjectCounts[subj].topics[topic].total++;
-                                        if (q.reason === 'bilgi') subjectCounts[subj].topics[topic].bilgi++;
-                                        else subjectCounts[subj].topics[topic].dikkat++;
-                                    }
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-
-            document.getElementById('stat-total-exams').innerText = totalExams;
-            document.getElementById('stat-total-wrongs').innerText = totalWrongs;
-            document.getElementById('stat-resolved-wrongs').innerText = resolvedWrongs;
-            document.getElementById('stat-pending-wrongs').innerText = totalWrongs - resolvedWrongs;
-
-            const grid = document.getElementById('subject-cards-grid');
-            grid.innerHTML = '';
-            const subjects = ['Türkçe', 'Sosyal Bilgiler', 'Temel Matematik', 'Fen Bilimleri'];
-
-            subjects.forEach(subj => {
-                const data = subjectCounts[subj];
-                const isSelected = (appState.activeSubjectTab === subj);
-                const borderClass = isSelected ? 'border-amber-500 bg-amber-500/10' : 'border-slate-800 bg-slate-950/60 hover:border-slate-700';
-
-                grid.innerHTML += `
-                    <div onclick="selectDashboardSubject('${subj}')" class="cursor-pointer p-4 rounded-xl border transition ${borderClass}">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-xs ${isSelected ? 'text-amber-400' : 'text-slate-200'}">${subj}</span>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">${data.totalWrongs} Yanlış</span>
-                        </div>
-                        <div class="text-[11px] text-slate-400">Çözülen: <strong class="text-emerald-400">${data.resolvedWrongs}</strong> / ${data.totalWrongs}</div>
+            <!-- Lessons Breakdown -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📚 Ders Bazlı Yanlış Oranları</div>
+                </div>
+                <div class="lessons-grid">
+                    <div class="lesson-box">
+                        <div class="lesson-name">Türkçe</div>
+                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
                     </div>
-                `;
-            });
+                    <div class="lesson-box">
+                        <div class="lesson-name">Sosyal Bilgiler</div>
+                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
+                    </div>
+                    <div class="lesson-box">
+                        <div class="lesson-name">Temel Matematik</div>
+                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
+                    </div>
+                    <div class="lesson-box">
+                        <div class="lesson-name">Fen Bilimleri</div>
+                        <div class="lesson-stats"><span>Çözülen: 0 / 0</span><span class="badge">0 Yanlış</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            renderDashboardTopicTable(subjectCounts[appState.activeSubjectTab]);
-            renderNetTrendChart();
-        }
-
-        function selectDashboardSubject(subj) {
-            appState.activeSubjectTab = subj;
-            renderDashboard();
-        }
-
-        function renderDashboardTopicTable(subjData) {
-            document.getElementById('dash-subject-title').innerText = appState.activeSubjectTab;
-            const tbody = document.getElementById('dash-topic-tbody');
-            tbody.innerHTML = '';
-
-            if (!subjData || Object.keys(subjData.topics).length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-xs text-slate-500">Bu derste henüz eklenmiş bir yanlış soru bulunmuyor.</td></tr>`;
-                return;
-            }
-
-            const sortedTopics = Object.entries(subjData.topics).sort((a, b) => b[1].total - a[1].total);
-
-            sortedTopics.forEach(([topicName, counts]) => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/40 transition">
-                        <td class="py-3 px-4 font-medium text-slate-200 text-xs">${topicName}</td>
-                        <td class="py-3 px-4 text-center font-bold text-xs text-indigo-400">${counts.bilgi} Soru</td>
-                        <td class="py-3 px-4 text-center font-bold text-xs text-amber-400">${counts.dikkat} Soru</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-xs text-white">${counts.total} Soru</td>
+        <!-- Table Section -->
+        <div class="table-section">
+            <div class="table-header">Seçili Ders Konu Dağılımı: Türkçe</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Konu Adı</th>
+                        <th>💡 Bilgi Eksikliği</th>
+                        <th>🎯 Dikkat Eksikliği</th>
+                        <th>📌 Toplam Yanlış Soru</th>
                     </tr>
-                `;
-            });
-        }
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="empty-row">Bu derste henüz eklenmiş bir yanlış soru bulunmuyor.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        // --- NET TREND CHART ---
-        function setNetPeriod(period) {
-            appState.netPeriod = period;
-            const periods = ['weekly', 'biweekly', 'monthly', 'all'];
-            periods.forEach(p => {
-                const btn = document.getElementById(`period-${p}`);
-                if (btn) {
-                    if (p === period) btn.className = "px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold shadow transition";
-                    else btn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition";
-                }
-            });
-            renderNetTrendChart();
-        }
-
-        function calculateExamNet(exam) {
-            let totalCorrect = 0;
-            let totalWrong = 0;
-
-            if (exam.items) {
-                Object.keys(exam.items).forEach(subj => {
-                    Object.keys(exam.items[subj]).forEach(top => {
-                        const qList = exam.items[subj][top];
-                        if (Array.isArray(qList)) {
-                            qList.forEach(q => {
-                                if (q.status === 'dogru') totalCorrect++;
-                                else if (q.status === 'yanlis') totalWrong++;
-                            });
-                        }
-                    });
-                });
-            }
-
-            const net = totalCorrect - (totalWrong * 0.25);
-            return Math.max(0, parseFloat(net.toFixed(2)));
-        }
-
-        function renderNetTrendChart() {
-            const ctx = document.getElementById('netTrendChart').getContext('2d');
-            let sortedExams = [...appState.exams].sort((a,b) => new Date(a.date) - new Date(b.date));
-            const now = new Date();
-
-            if (appState.netPeriod === 'weekly') {
-                const cutoff = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-                sortedExams = sortedExams.filter(e => new Date(e.date) >= cutoff);
-            } else if (appState.netPeriod === 'biweekly') {
-                const cutoff = new Date(now.getTime() - (14 * 24 * 60 * 60 * 1000));
-                sortedExams = sortedExams.filter(e => new Date(e.date) >= cutoff);
-            } else if (appState.netPeriod === 'monthly') {
-                const cutoff = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-                sortedExams = sortedExams.filter(e => new Date(e.date) >= cutoff);
-            }
-
-            const labels = sortedExams.map(e => `${e.name}\n(${e.date})`);
-            const netScores = sortedExams.map(e => calculateExamNet(e));
-
-            if (netTrendChartInstance) {
-                netTrendChartInstance.destroy();
-            }
-
-            netTrendChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Net Skoru',
-                        data: netScores,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                        borderWidth: 3,
-                        tension: 0.35,
-                        fill: true,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: '#f59e0b',
-                        pointBorderColor: '#0f172a',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    onClick: (event, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const targetExam = sortedExams[index];
-                            if (targetExam) {
-                                switchTab('exams');
-                                openExamModal(targetExam.id);
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return ` Net Skoru: ${context.parsed.y} Net`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                            ticks: { color: '#94a3b8', font: { size: 10 } }
-                        },
-                        y: {
-                            min: 0,
-                            max: 120,
-                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
-                            ticks: { color: '#94a3b8', font: { size: 11 } }
-                        }
-                    }
-                }
-            });
-        }
-
-        // --- EXAM MODAL & STRICT BRANCH QUESTION SYSTEM ---
-        function openExamModal(examId = null) {
-            editingExamId = examId;
-            modalMistakes = {};
-
-            if (examId) {
-                const exam = appState.exams.find(e => e.id === examId);
-                if (exam) {
-                    document.getElementById('exam-name').value = exam.name;
-                    document.getElementById('exam-date').value = exam.date;
-                    modalMistakes = JSON.parse(JSON.stringify(exam.items || {}));
-                }
-            } else {
-                document.getElementById('exam-name').value = '';
-                document.getElementById('exam-date').valueAsDate = new Date();
-            }
-
-            switchExamModalTab('Türkçe');
-            openModal('exam-modal');
-        }
-
-        function switchExamModalTab(subj) {
-            currentModalSubject = subj;
-            const tabs = ['Türkçe', 'Sosyal Bilgiler', 'Temel Matematik', 'Fen Bilimleri'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`exam-tab-${t}`);
-                if (btn) {
-                    if (t === subj) btn.className = "exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-950";
-                    else btn.className = "exam-modal-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:bg-slate-800";
-                }
-            });
-            document.getElementById('form-subject-label').innerText = subj;
-            renderExamSubjectTopics();
-        }
-
-        function getSubjectTotalEnteredQuestions(subj) {
-            let total = 0;
-            if (modalMistakes[subj]) {
-                Object.keys(modalMistakes[subj]).forEach(topic => {
-                    const qList = modalMistakes[subj][topic];
-                    if (Array.isArray(qList)) {
-                        total += qList.length;
-                    }
-                });
-            }
-            return total;
-        }
-
-        function getBranchEnteredQuestions(subj, branchGroup) {
-            let total = 0;
-            if (modalMistakes[subj]) {
-                branchGroup.topics.forEach(top => {
-                    if (modalMistakes[subj][top] && Array.isArray(modalMistakes[subj][top])) {
-                        total += modalMistakes[subj][top].length;
-                    }
-                });
-            }
-            return total;
-        }
-
-        function updateQuestionCounterUI() {
-            const currentTotal = getSubjectTotalEnteredQuestions(currentModalSubject);
-            const maxLimit = SUBJECT_QUESTION_LIMITS[currentModalSubject] || 40;
-            
-            document.getElementById('counter-current').innerText = currentTotal;
-            document.getElementById('counter-max').innerText = maxLimit;
-
-            const counterBox = document.getElementById('subject-question-counter');
-            if (currentTotal >= maxLimit) {
-                counterBox.className = "bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-400";
-            } else {
-                counterBox.className = "bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-bold";
-            }
-        }
-
-        function renderExamSubjectTopics() {
-            const container = document.getElementById('exam-subject-topics-container');
-            container.innerHTML = '';
-
-            const branchGroups = TYT_BRANCHED_TOPICS[currentModalSubject] || [];
-            if (!modalMistakes[currentModalSubject]) modalMistakes[currentModalSubject] = {};
-
-            updateQuestionCounterUI();
-
-            branchGroups.forEach(group => {
-                let topicsInBranchHTML = '';
-                const branchTotal = getBranchEnteredQuestions(currentModalSubject, group);
-                const isBranchFull = branchTotal >= group.limit;
-
-                group.topics.forEach(topic => {
-                    const qList = modalMistakes[currentModalSubject][topic] || [];
-                    const safeTopic = topic.replace(/'/g, "\\'");
-
-                    let questionsHTML = '';
-                    qList.forEach((q, index) => {
-                        questionsHTML += `
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-lg ${q.status === 'yanlis' ? 'bg-rose-500/10 border border-rose-500/30' : q.status === 'dogru' ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-slate-900 border border-slate-800'} transition gap-2 mt-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-[10px] font-mono text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Soru #${index + 1}</span>
-                                    <input type="text" placeholder="No" value="${q.qNo}" onchange="updateQuestionData('${safeTopic}', ${index}, 'qNo', this.value)" class="w-14 bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-xs text-center text-white focus:outline-none focus:border-amber-500">
-                                </div>
-
-                                <div class="flex items-center space-x-2">
-                                    <button type="button" onclick="setQuestionStatus('${safeTopic}', ${index}, 'dogru')" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition ${q.status === 'dogru' ? 'bg-emerald-500 text-slate-950' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}">Doğru ✅</button>
-                                    <button type="button" onclick="setQuestionStatus('${safeTopic}', ${index}, 'bos')" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition ${q.status === 'bos' ? 'bg-slate-700 text-white' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}">Boş ⚪</button>
-                                    <button type="button" onclick="setQuestionStatus('${safeTopic}', ${index}, 'yanlis')" class="px-2.5 py-1 rounded-md text-[11px] font-bold transition ${q.status === 'yanlis' ? 'bg-rose-500 text-slate-950' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}">Yanlış ❌</button>
-
-                                    ${q.status === 'yanlis' ? `
-                                        <select onchange="updateQuestionData('${safeTopic}', ${index}, 'reason', this.value)" class="bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-[11px] font-medium text-amber-400 focus:outline-none">
-                                            <option value="bilgi" ${q.reason === 'bilgi' ? 'selected' : ''}>📚 Bilgi</option>
-                                            <option value="dikkat" ${q.reason === 'dikkat' ? 'selected' : ''}>🎯 Dikkat</option>
-                                        </select>
-                                    ` : ''}
-
-                                    <button type="button" onclick="removeQuestionFromTopic('${safeTopic}', ${index})" class="text-slate-500 hover:text-rose-400 p-1 text-xs" title="Soruyu Sil">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    });
-
-                    topicsInBranchHTML += `
-                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-1">
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-200">${topic}</span>
-                                <button type="button" onclick="addQuestionToTopic('${safeTopic}', '${group.branch}', ${group.limit})" class="${isBranchFull ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed' : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border-amber-500/30'} border px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-plus text-[10px]"></i> Soru Ekle ${qList.length > 0 ? `(${qList.length})` : ''}
-                                </button>
-                            </div>
-                            ${questionsHTML}
-                        </div>
-                    `;
-                });
-
-                container.innerHTML += `
-                    <div class="bg-slate-950 border ${isBranchFull ? 'border-rose-500/40' : 'border-slate-800'} rounded-2xl p-4 space-y-3 transition">
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
-                            <h4 class="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                                ${group.branch}
-                            </h4>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-[10px] ${isBranchFull ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-slate-900 text-amber-400 border-slate-800'} font-mono font-bold px-2.5 py-0.5 rounded-full border">
-                                    Dolu: ${branchTotal} / ${group.limit} Soru
-                                </span>
-                                <span class="text-[10px] bg-slate-900 text-slate-300 font-mono font-bold px-2.5 py-0.5 rounded-full border border-slate-800">
-                                    ${group.range}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="space-y-2.5">
-                            ${topicsInBranchHTML}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function addQuestionToTopic(topic, branchName, branchLimit) {
-            const branchGroups = TYT_BRANCHED_TOPICS[currentModalSubject] || [];
-            const group = branchGroups.find(g => g.branch === branchName);
-            if (!group) return;
-
-            const branchTotal = getBranchEnteredQuestions(currentModalSubject, group);
-
-            if (branchTotal >= branchLimit) {
-                alert(`⚠️ Sınır Aşıldı!\n\n${branchName} branşı için maksimum ${branchLimit} soru girebilirsiniz. Daha fazla eklenemez.`);
-                return;
-            }
-
-            if (!modalMistakes[currentModalSubject]) modalMistakes[currentModalSubject] = {};
-            if (!modalMistakes[currentModalSubject][topic]) modalMistakes[currentModalSubject][topic] = [];
-
-            modalMistakes[currentModalSubject][topic].push({
-                id: 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-                status: 'dogru',
-                qNo: '',
-                reason: 'bilgi',
-                resolved: false
-            });
-
-            renderExamSubjectTopics();
-        }
-
-        function removeQuestionFromTopic(topic, index) {
-            if (modalMistakes[currentModalSubject] && modalMistakes[currentModalSubject][topic]) {
-                modalMistakes[currentModalSubject][topic].splice(index, 1);
-                renderExamSubjectTopics();
-            }
-        }
-
-        function setQuestionStatus(topic, index, status) {
-            if (modalMistakes[currentModalSubject] && modalMistakes[currentModalSubject][topic] && modalMistakes[currentModalSubject][topic][index]) {
-                modalMistakes[currentModalSubject][topic][index].status = status;
-                renderExamSubjectTopics();
-            }
-        }
-
-        function updateQuestionData(topic, index, key, value) {
-            if (modalMistakes[currentModalSubject] && modalMistakes[currentModalSubject][topic] && modalMistakes[currentModalSubject][topic][index]) {
-                modalMistakes[currentModalSubject][topic][index][key] = value;
-            }
-        }
-
-        function saveExamFromModal() {
-            const name = document.getElementById('exam-name').value.trim();
-            const date = document.getElementById('exam-date').value;
-
-            if (!name) {
-                alert("Lütfen deneme adını giriniz.");
-                return;
-            }
-
-            if (editingExamId) {
-                const exam = appState.exams.find(e => e.id === editingExamId);
-                if (exam) {
-                    exam.name = name;
-                    exam.date = date;
-                    exam.items = JSON.parse(JSON.stringify(modalMistakes));
-                }
-            } else {
-                const newExam = {
-                    id: 'exam_' + Date.now(),
-                    name: name,
-                    date: date,
-                    items: JSON.parse(JSON.stringify(modalMistakes))
-                };
-                appState.exams.unshift(newExam);
-            }
-
-            closeModal('exam-modal');
-            updateAllViews();
-            showMessage("Kaydedildi", `"${name}" denemesi kaydedildi.`);
-        }
-
-        function deleteExam(examId) {
-            if (confirm("Bu denemeyi silmek istediğinizden emin misiniz?")) {
-                appState.exams = appState.exams.filter(e => e.id !== examId);
-                updateAllViews();
-                showMessage("Silindi", "Deneme kaldırıldı.", "warn");
-            }
-        }
-
-        function renderExams() {
-            const container = document.getElementById('exams-container');
-            container.innerHTML = '';
-
-            if (appState.exams.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full bg-slate-900/90 p-12 text-center rounded-2xl border border-slate-800">
-                        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-amber-500/20">
-                            <i class="fa-solid fa-file-invoice"></i>
-                        </div>
-                        <h3 class="text-base font-bold text-white mb-1">Henüz Deneme Eklemediniz</h3>
-                        <p class="text-xs text-slate-400 mb-4">"Yeni Deneme Ekle" butonuna tıklayarak deneme ve sorularınızı girin.</p>
-                        <button onclick="openExamModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold transition">
-                            <i class="fa-solid fa-plus mr-1"></i>İlk Denemeyi Ekle
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-
-            appState.exams.forEach(exam => {
-                let wrongCount = 0;
-                let resolvedCount = 0;
-
-                if (exam.items) {
-                    Object.keys(exam.items).forEach(s => {
-                        Object.keys(exam.items[s]).forEach(t => {
-                            const qList = exam.items[s][t];
-                            if (Array.isArray(qList)) {
-                                qList.forEach(q => {
-                                    if (q.status === 'yanlis') {
-                                        wrongCount++;
-                                        if (q.resolved) resolvedCount++;
-                                    }
-                                });
-                            }
-                        });
-                    });
-                }
-
-                const calculatedNet = calculateExamNet(exam);
-
-                container.innerHTML += `
-                    <div onclick="openExamModal('${exam.id}')" class="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 transition cursor-pointer flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex justify-between items-start mb-1">
-                                <h3 class="font-bold text-white text-sm truncate pr-2">${exam.name}</h3>
-                                <button onclick="event.stopPropagation(); deleteExam('${exam.id}')" class="text-slate-500 hover:text-rose-400 transition p-1" title="Sil">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                </button>
-                            </div>
-                            <p class="text-[11px] text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${exam.date}</p>
-                        </div>
-
-                        <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
-                            <span class="font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">${calculatedNet} Net</span>
-                            <span class="text-slate-400 font-medium">${resolvedCount}/${wrongCount} Anlaşıldı</span>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // --- ACCORDION ORTAK YANLIŞLAR TABLOSU LOGIC ---
-        function setAnalysisSubject(subj) {
-            appState.activeAnalysisSubject = subj;
-            const buttons = document.querySelectorAll('.subj-filter-btn');
-            buttons.forEach(btn => {
-                if (btn.id === `subj-btn-${subj}`) btn.className = "subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-amber-500 text-slate-950 shadow";
-                else btn.className = "subj-filter-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 hover:text-white border border-slate-800";
-            });
-            document.getElementById('current-subject-label').innerText = subj;
-            renderAnalysisTable();
-        }
-
-        function renderAnalysisTable() {
-            const container = document.getElementById('analysis-accordion-container');
-            const filterStatus = document.getElementById('filter-status').value;
-            container.innerHTML = '';
-
-            const groupedTopics = {};
-
-            appState.exams.forEach(exam => {
-                if (!exam.items) return;
-                Object.keys(exam.items).forEach(subj => {
-                    if (appState.activeAnalysisSubject !== 'Tümü' && subj !== appState.activeAnalysisSubject) return;
-
-                    Object.keys(exam.items[subj]).forEach(topic => {
-                        const qList = exam.items[subj][topic];
-                        if (Array.isArray(qList)) {
-                            qList.forEach(q => {
-                                if (q.status === 'yanlis') {
-                                    if (filterStatus === 'pending' && q.resolved) return;
-                                    if (filterStatus === 'resolved' && !q.resolved) return;
-
-                                    const key = `${subj} - ${topic}`;
-                                    if (!groupedTopics[key]) {
-                                        groupedTopics[key] = { subject: subj, topic: topic, items: [] };
-                                    }
-                                    groupedTopics[key].items.push({
-                                        examId: exam.id,
-                                        examName: exam.name,
-                                        examDate: exam.date,
-                                        qId: q.id,
-                                        qNo: q.qNo,
-                                        reason: q.reason,
-                                        resolved: q.resolved
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
-            });
-
-            const keys = Object.keys(groupedTopics);
-            if (keys.length === 0) {
-                container.innerHTML = `<div class="bg-slate-950 p-8 text-center rounded-2xl text-xs text-slate-500 border border-slate-800">Seçili kriterlere uygun ortak yanlış bulunamadı.</div>`;
-                return;
-            }
-
-            keys.forEach(key => {
-                const group = groupedTopics[key];
-                const totalCount = group.items.length;
-                const resolvedCount = group.items.filter(i => i.resolved).length;
-                const safeKey = key.replace(/['"\s]/g, '_');
-
-                let itemsHTML = '';
-                group.items.forEach(item => {
-                    const safeTopic = group.topic.replace(/'/g, "\\'");
-                    itemsHTML += `
-                        <div class="flex items-center justify-between p-2.5 rounded-xl ${item.resolved ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-slate-900 border border-slate-800'} transition">
-                            <div class="flex items-center space-x-3">
-                                <input type="checkbox" ${item.resolved ? 'checked' : ''} onchange="toggleMistakeResolved('${item.examId}', '${group.subject}', '${safeTopic}', '${item.qId}', this.checked)" class="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-950 focus:ring-emerald-500 cursor-pointer">
-                                <div>
-                                    <span class="text-xs font-bold text-slate-200 ${item.resolved ? 'line-through text-slate-400' : ''}">${item.examName}</span>
-                                    <span class="text-[10px] text-slate-500 ml-1.5">(${item.examDate})</span>
-                                    ${item.qNo ? `<span class="ml-2 text-[10px] bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-amber-400 font-mono">Soru #${item.qNo}</span>` : ''}
-                                </div>
-                            </div>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${item.reason === 'bilgi' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
-                                ${item.reason === 'bilgi' ? '📚 Bilgi Eks.' : '🎯 Dikkat Eks.'}
-                            </span>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML += `
-                    <div class="bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden">
-                        <button onclick="toggleAccordion('${safeKey}')" class="w-full p-4 flex justify-between items-center text-left hover:bg-slate-800/50 transition">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-[10px] font-extrabold px-2 py-0.5 bg-slate-950 text-amber-400 rounded-md border border-slate-800">${group.subject}</span>
-                                <h4 class="font-bold text-white text-xs">${group.topic}</h4>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <span class="text-xs font-semibold text-slate-400">${resolvedCount}/${totalCount} Anlaşıldı</span>
-                                <i id="icon-${safeKey}" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform"></i>
-                            </div>
-                        </button>
-                        <div id="acc-${safeKey}" class="hidden px-4 pb-4 space-y-2 border-t border-slate-800/60 pt-3">
-                            ${itemsHTML}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function toggleAccordion(safeKey) {
-            const el = document.getElementById(`acc-${safeKey}`);
-            const icon = document.getElementById(`icon-${safeKey}`);
-            if (el) {
-                el.classList.toggle('hidden');
-                if (icon) icon.classList.toggle('rotate-180');
-            }
-        }
-
-        function toggleMistakeResolved(examId, subj, topic, qId, isResolved) {
-            const exam = appState.exams.find(e => e.id === examId);
-            if (exam && exam.items && exam.items[subj] && exam.items[subj][topic]) {
-                const qList = exam.items[subj][topic];
-                if (Array.isArray(qList)) {
-                    const q = qList.find(item => item.id === qId);
-                    if (q) {
-                        q.resolved = isResolved;
-                        updateAllViews();
-                    }
+    <script>
+        // Chart.js Grafiği Başlatma
+        const ctx = document.getElementById('netChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1. Deneme', '2. Deneme', '3. Deneme', '4. Deneme', '5. Deneme'],
+                datasets: [{
+                    label: 'TYT Net',
+                    data: [0, 0, 0, 0, 0],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, suggestedMax: 120 },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                 }
             }
-        }
+        });
     </script>
 </body>
 </html>
