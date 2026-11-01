@@ -113,3 +113,417 @@
             font-weight: 500;
             color: var(--text-muted);
         }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            padding: 6px 10px;
+            font-size: 12px;
+            width: auto;
+        }
+
+        /* Özet Kutuları */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-box {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        /* Deneme Listesi ve Yanlış Defteri */
+        .list-item {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .item-details {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Üst Başlık -->
+    <div class="card" style="padding: 15px;">
+        <div class="header-title">📊 TYT Analiz Pro</div>
+        <div class="header-sub">YKS & TYT Sınav Takip ve Net Analiz Sistemi</div>
+        
+        <!-- Sekmeler -->
+        <div class="nav-tabs" style="margin-bottom: 0;">
+            <button class="tab-btn active" onclick="switchTab('genel')">Genel İstatistik</button>
+            <button class="tab-btn" onclick="switchTab('deneme')">Denemelerim</button>
+            <button class="tab-btn" onclick="switchTab('yanlis')">Yanlış Defteri</button>
+        </div>
+    </div>
+
+    <!-- SEKMELERİN İÇERİKLERİ -->
+
+    <!-- 1. GENEL İSTATİSTİK -->
+    <div id="genel" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>Toplam Deneme</label>
+                <div class="stat-value" id="statTotalDeneme">0</div>
+            </div>
+            <div class="stat-box">
+                <label>Ortalama Net</label>
+                <div class="stat-value" id="statAvgNet">0.0</div>
+            </div>
+            <div class="stat-box">
+                <label>Toplam Yanlış</label>
+                <div class="stat-value" id="statTotalYanlis">0</div>
+            </div>
+            <div class="stat-box">
+                <label>Bekleyen Yanlışlar</label>
+                <div class="stat-value" id="statBekleyenYanlis">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <label style="margin-bottom: 10px; display: block;">📈 Net Takip Grafiği</label>
+            <div class="chart-container">
+                <canvas id="netChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DENEMELERİM (KAYIT & ÖNİZLEME) -->
+    <div id="deneme" class="tab-content">
+        <div class="card">
+            <div class="header-title" style="font-size: 16px; margin-bottom: 10px;">Yeni Deneme Ekle</div>
+            
+            <div class="form-group">
+                <label>Deneme Adı / Yayın</label>
+                <input type="text" id="denemeAdi" placeholder="Örn: Hız ve Renk TYT">
+            </div>
+
+            <div class="form-group">
+                <label>Toplam Net</label>
+                <input type="number" step="0.25" id="denemeNet" placeholder="Örn: 75.5">
+            </div>
+
+            <div class="form-group">
+                <label>Tarih</label>
+                <input type="date" id="denemeTarih">
+            </div>
+
+            <button class="btn" onclick="denemeEkle()">Denemeyi Kaydet</button>
+        </div>
+
+        <div class="card">
+            <div class="header-title" style="font-size: 16px; margin-bottom: 10px;">Kaydedilen Denemeler</div>
+            <div id="denemeListesi">
+                <!-- Kayıtlar buraya gelecek -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. YANLIŞ DEFTERİ (TÜM İSTEDİĞİN DERS VE KONULAR) -->
+    <div id="yanlis" class="tab-content">
+        <div class="card">
+            <div class="header-title" style="font-size: 16px; margin-bottom: 10px;">Yeni Yanlış Ekle</div>
+            
+            <div class="form-group">
+                <label>Ders Seçin</label>
+                <select id="dersSecimi" onchange="konulariGuncelle()">
+                    <option value="Turkce">Türkçe</option>
+                    <option value="Matematik">Matematik</option>
+                    <option value="Geometri">Geometri</option>
+                    <option value="Fizik">Fizik</option>
+                    <option value="Kimya">Kimya</option>
+                    <option value="Biyoloji">Biyoloji</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Konu Seçin</label>
+                <select id="konuSecimi">
+                    <!-- Dinamik dolacak -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Soru Notu / Açıklama</label>
+                <textarea id="soruNotu" rows="2" placeholder="Yanlış yapma sebebiniz..."></textarea>
+            </div>
+
+            <button class="btn" onclick="yanlisEkle()">Yanlışı Kaydet ve Listele</button>
+        </div>
+
+        <div class="card">
+            <div class="header-title" style="font-size: 16px; margin-bottom: 10px;">Yanlış Defteri & Önizleme</div>
+            <div id="yanlisListesi">
+                <!-- Yanlışlar buraya gelecek -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Konu Listeleri (İstediğin Tüm Konular)
+    const konularData = {
+        "Turkce": [
+            "1. Sözcükte Anlam", "2. Cümlede Anlam", "3. Paragraf", "4. Ses Bilgisi", 
+            "5. Yazım Kuralları", "6. Noktalama İşaretleri", "7. Sözcükte Yapı", 
+            "8. Sözcük Türleri", "9. Fiiller", "10. Cümlenin Ögeleri", "11. Cümle Türleri", "Anlatım Bozukluğu"
+        ],
+        "Matematik": [
+            "Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB – EKOK", 
+            "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", 
+            "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Denklem Çözme", 
+            "Sayı Problemleri", "Kesir Problemleri", "Yaş Problemleri", "Hareket Hız Problemleri", 
+            "İşçi Emek Problemleri", "Yüzde Problemleri", "Kar Zarar Problemleri", "Karışım Problemleri", 
+            "Grafik Problemleri", "Rutin Olmayan Problemleri", "Kümeler – Kartezyen Çarpım", "Mantık", 
+            "Fonksiyonlar", "Polinomlar", "2.Dereceden Denklemler", "Permütasyon ve Kombinasyon", 
+            "Olasılık", "Veri – İstatistik"
+        ],
+        "Geometri": [
+            "Doğruda Açılar", "Üçgende Açılar", "Eşkenar Üçgen", "Açıortay", "Kenarortay", 
+            "Eşlik ve Benzerlik", "Üçgende Alan", "Üçgende Benzerlik", "Açı Kenar Bağıntıları", 
+            "Çokgenler", "Özel Dörtgenler", "Çember ve Daire", "Analitik Geometri", 
+            "Katı Cisimler", "Çemberin Analitiği"
+        ],
+        "Fizik": [
+            "Fizik Bilimine Giriş", "Madde ve Özellikleri", "Sıvıların Kaldırma Kuvveti", "Basınç", 
+            "Isı, Sıcaklık ve Genleşme", "Hareket ve Kuvvet", "Dinamik", "İş, Güç ve Enerji", 
+            "Elektrik", "Manyetizma", "Dalgalar", "Optik"
+        ],
+        "Kimya": [
+            "Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", 
+            "Maddenin Halleri", "Doğa ve Kimya", "Kimyanın Temel Kanunları", "Kimyasal Hesaplamalar", 
+            "Karışımlar", "Asit, Baz ve Tuz", "Kimya Her Yerde"
+        ],
+        "Biyoloji": [
+            "Canlıların Ortak Özellikleri", "Canlıların Temel Bileşenleri", "Hücre ve Organelleri", 
+            "Hücre Zarından Madde Geçişi", "Canlıların Sınıflandırılması", "Mitoz ve Eşeysiz Üreme", 
+            "Mayoz ve Eşeyli Üreme", "Kalıtım", "Ekosistem Ekolojisi", "Güncel Çevre Sorunları"
+        ]
+    };
+
+    let denemeler = JSON.parse(localStorage.getItem('tyt_denemeler')) || [];
+    let yanlislar = JSON.parse(localStorage.getItem('tyt_yanlislar')) || [];
+    let netChart = null;
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+        if(tabId === 'genel') guncelleIstatistikler();
+    }
+
+    function konulariGuncelle() {
+        const ders = document.getElementById('dersSecimi').value;
+        const konuSelect = document.getElementById('konuSecimi');
+        konuSelect.innerHTML = '';
+        
+        konularData[ders].forEach(konu => {
+            let opt = document.createElement('option');
+            opt.value = konu;
+            opt.textContent = konu;
+            konuSelect.appendChild(opt);
+        });
+    }
+
+    // İlk açılışta konuları yükle
+    konulariGuncelle();
+
+    function denemeEkle() {
+        const adi = document.getElementById('denemeAdi').value;
+        const net = parseFloat(document.getElementById('denemeNet').value);
+        const tarih = document.getElementById('denemeTarih').value;
+
+        if(!adi || isNaN(net)) {
+            alert('Lütfen tüm alanları doğru doldurun.');
+            return;
+        }
+
+        denemeler.push({ adi, net, tarih: tarih || new Date().toISOString().split('T')[0] });
+        localStorage.setItem('tyt_denemeler', JSON.stringify(denemeler));
+        
+        document.getElementById('denemeAdi').value = '';
+        document.getElementById('denemeNet').value = '';
+        
+        listeleriGuncelle();
+        alert('Deneme başarıyla kaydedildi ve önizlemeye eklendi!');
+    }
+
+    function yanlisEkle() {
+        const ders = document.getElementById('dersSecimi').value;
+        const konu = document.getElementById('konuSecimi').value;
+        const notu = document.getElementById('soruNotu').value;
+
+        yanlislar.push({ ders, konu, notu, cozuldu: false });
+        localStorage.setItem('tyt_yanlislar', JSON.stringify(yanlislar));
+
+        document.getElementById('soruNotu').value = '';
+        listeleriGuncelle();
+        alert('Yanlış başarıyla deftere eklendi!');
+    }
+
+    function yanlisSil(index) {
+        yanlislar.splice(index, 1);
+        localStorage.setItem('tyt_yanlislar', JSON.stringify(yanlislar));
+        listeleriGuncelle();
+    }
+
+    function denemeSil(index) {
+        denemeler.splice(index, 1);
+        localStorage.setItem('tyt_denemeler', JSON.stringify(denemeler));
+        listeleriGuncelle();
+    }
+
+    function listeleriGuncelle() {
+        // Deneme Listesi Önizleme
+        const dList = document.getElementById('denemeListesi');
+        dList.innerHTML = denemeler.length === 0 ? '<div class="item-details">Henüz deneme eklenmedi.</div>' : '';
+        denemeler.forEach((d, index) => {
+            dList.innerHTML += `
+                <div class="list-item">
+                    <div class="item-info">
+                        <div class="item-title">${d.adi}</div>
+                        <div class="item-details">Net: <b>${d.net}</b> | Tarih: ${d.tarih}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="denemeSil(${index})">Sil</button>
+                </div>
+            `;
+        });
+
+        // Yanlış Defteri Önizleme
+        const yList = document.getElementById('yanlisListesi');
+        yList.innerHTML = yanlislar.length === 0 ? '<div class="item-details">Yanlış defteriniz boş.</div>' : '';
+        yanlislar.forEach((y, index) => {
+            yList.innerHTML += `
+                <div class="list-item">
+                    <div class="item-info">
+                        <div class="item-title">[${y.ders}] ${y.konu}</div>
+                        <div class="item-details">${y.notu || 'Not girilmedi'}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="yanlisSil(${index})">Sil</button>
+                </div>
+            `;
+        });
+
+        guncelleIstatistikler();
+    }
+
+    function guncelleIstatistikler() {
+        document.getElementById('statTotalDeneme').textContent = denemeler.length;
+        
+        let toplamNet = denemeler.reduce((acc, curr) => acc + curr.net, 0);
+        let ort = denemeler.length > 0 ? (toplamNet / denemeler.length).toFixed(2) : '0.0';
+        document.getElementById('statAvgNet').textContent = ort;
+        
+        document.getElementById('statTotalYanlis').textContent = yanlislar.length;
+        document.getElementById('statBekleyenYanlis').textContent = yanlislar.filter(y => !y.cozuldu).length;
+
+        // Grafik Güncelleme
+        const ctx = document.getElementById('netChart').getContext('2d');
+        const labels = denemeler.map(d => d.adi);
+        const data = denemeler.map(d => d.net);
+
+        if(netChart) netChart.destroy();
+
+        netChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Net Gelişimi',
+                    data: data,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                    x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } }
+                },
+                plugins: { legend: { labels: { color: '#f3f4f6' } } }
+            }
+        });
+    }
+
+    // Sayfa açıldığında listeleri yükle
+    listeleriGuncelle();
+</script>
+
+</body>
+</html>
