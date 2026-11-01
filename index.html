@@ -41,7 +41,6 @@
             gap: 16px;
         }
 
-        /* Top App Bar (Görseldeki gibi Kod / Önizleme butonlu) */
         .top-app-bar {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -85,7 +84,6 @@
             color: #000;
         }
 
-        /* Header & Logo Area */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -131,7 +129,6 @@
             color: var(--text-muted);
         }
 
-        /* Tabs */
         .nav-tabs {
             display: flex;
             background-color: #0b101d;
@@ -163,7 +160,6 @@
             font-weight: 700;
         }
 
-        /* Dashboard Grid Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -213,7 +209,6 @@
         .icon-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
         .icon-orange { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
 
-        /* Main Content Card */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -269,7 +264,6 @@
             width: 100%;
         }
 
-        /* Form elements */
         .tab-content { display: none; flex-direction: column; gap: 14px; }
         .tab-content.active { display: flex; }
 
@@ -296,7 +290,6 @@
             width: 100%;
         }
 
-        /* List Items */
         .list-item {
             background-color: #070a12;
             border: 1px solid var(--border-color);
@@ -306,19 +299,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
         }
 
         .btn-del {
             background-color: rgba(239, 68, 68, 0.2);
             color: #f87171;
             border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
             font-size: 11px;
             cursor: pointer;
         }
 
-        /* Kod / Önizleme Görünüm Alanları */
+        .btn-check {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .status-done {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
         #codeViewArea {
             display: none;
             background-color: #03050a;
@@ -337,7 +351,6 @@
 <body>
 
 <div class="container">
-    <!-- Üst Kontrol Barı (Görseldeki Kod / Önizleme Alanı) -->
     <div class="top-app-bar">
         <div class="app-title-mini">TYT Analiz Pro</div>
         <div class="view-toggle">
@@ -346,13 +359,10 @@
         </div>
     </div>
 
-    <!-- KOD GÖRÜNÜMÜ ALANI -->
     <div id="codeViewArea"></div>
 
-    <!-- ÖNİZLEME GÖRÜNÜMÜ ALANI -->
     <div id="previewContainer" style="display: flex; flex-direction: column; gap: 16px;">
         
-        <!-- Üst Bar: Logo ve Menü -->
         <div class="top-header">
             <div class="brand">
                 <div class="brand-icon">📈</div>
@@ -363,9 +373,9 @@
             </div>
 
             <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('genel')">📊 Genel İstatistikler</button>
-                <button class="tab-btn" onclick="switchTab('deneme')">📁 Denemelerim</button>
-                <button class="tab-btn" onclick="switchTab('yanlis')">📋 Ortak Yanlışlar Tablosu</button>
+                <button class="tab-btn active" onclick="switchTab('genel', event)">📊 Genel İstatistikler</button>
+                <button class="tab-btn" onclick="switchTab('deneme', event)">📁 Denemelerim</button>
+                <button class="tab-btn" onclick="switchTab('yanlis', event)">📋 Ortak Yanlışlar Tablosu</button>
             </div>
         </div>
 
@@ -446,7 +456,7 @@
             </div>
         </div>
 
-        <!-- 3. YANLIŞ DEFTERİ TABI (TÜM İSTENEN KONULAR) -->
+        <!-- 3. YANLIŞ DEFTERİ (TÜM KONULAR) -->
         <div id="yanlis" class="tab-content">
             <div class="card">
                 <div class="card-title" style="margin-bottom: 12px;">Yanlış Soru Kaydı</div>
@@ -469,11 +479,11 @@
                     <label>Not / Hata Nedeni</label>
                     <textarea id="yNot" rows="2" placeholder="Dikkatsizlik, formül unutuldu vb."></textarea>
                 </div>
-                <button class="btn-submit" onclick="ekleYanlis()">Deftere Ekle</button>
+                <button class="btn-submit" onclick="ekleYanlis()">Ortak Yanlışlar Tablosuna Ekle</button>
             </div>
 
             <div class="card">
-                <div class="card-title" style="margin-bottom: 12px;">Yanlış Sorular Listesi</div>
+                <div class="card-title" style="margin-bottom: 12px;">Ortak Yanlışlar Tablosu</div>
                 <div id="listYanlis"></div>
             </div>
         </div>
@@ -481,7 +491,6 @@
 </div>
 
 <script>
-    // Tam İstediğin Güncel Konu Listeleri
     const konularData = {
         "Turkce": ["1. Sözcükte Anlam", "2. Cümlede Anlam", "3. Paragraf", "4. Ses Bilgisi", "5. Yazım Kuralları", "6. Noktalama İşaretleri", "7. Sözcükte Yapı", "8. Sözcük Türleri", "9. Fiiller", "10. Cümlenin Ögeleri", "11. Cümle Türleri", "Anlatım Bozukluğu"],
         "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB – EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Denklem Çözme", "Sayı Problemleri", "Kesir Problemleri", "Yaş Problemleri", "Hareket Hız Problemleri", "İşçi Emek Problemleri", "Yüzde Problemleri", "Kar Zarar Problemleri", "Karışım Problemleri", "Grafik Problemleri", "Rutin Olmayan Problemleri", "Kümeler – Kartezyen Çarpım", "Mantık", "Fonksiyonlar", "Polinomlar", "2.Dereceden Denklemler", "Permütasyon ve Kombinasyon", "Olasılık", "Veri – İstatistik"],
@@ -515,11 +524,11 @@
         }
     }
 
-    function switchTab(id) {
+    function switchTab(id, event) {
         document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
         if(id === 'genel') renderAll();
     }
 
@@ -527,53 +536,96 @@
         const ders = document.getElementById('dersSel').value;
         const kSel = document.getElementById('konuSel');
         kSel.innerHTML = '';
-        konularData[ders].forEach(k => {
-            let opt = document.createElement('option');
-            opt.value = k; opt.textContent = k;
-            kSel.appendChild(opt);
-        });
+        if(konularData[ders]) {
+            konularData[ders].forEach(k => {
+                let opt = document.createElement('option');
+                opt.value = k; 
+                opt.textContent = k;
+                kSel.appendChild(opt);
+            });
+        }
     }
 
     function ekleDeneme() {
         const adi = document.getElementById('dAdi').value;
         const net = parseFloat(document.getElementById('dNet').value);
         const tarih = document.getElementById('dTarih').value || new Date().toISOString().split('T')[0];
-        if(!adi || isNaN(net)) return alert('Lütfen bilgileri doldurun.');
+        if(!adi || isNaN(net)) return alert('Lütfen deneme adını ve netini girin.');
         denemeler.push({ adi, net, tarih });
         localStorage.setItem('tyt_d', JSON.stringify(denemeler));
-        document.getElementById('dAdi').value = ''; document.getElementById('dNet').value = '';
+        document.getElementById('dAdi').value = ''; 
+        document.getElementById('dNet').value = '';
         renderAll();
+        alert('Deneme sonucu kaydedildi!');
     }
 
     function ekleYanlis() {
         const ders = document.getElementById('dersSel').value;
         const konu = document.getElementById('konuSel').value;
         const notu = document.getElementById('yNot').value;
-        yanlislar.push({ ders, konu, notu });
+        yanlislar.push({ ders, konu, notu, cozuldum: false });
         localStorage.setItem('tyt_y', JSON.stringify(yanlislar));
         document.getElementById('yNot').value = '';
         renderAll();
+        alert('Yanlış soru tablonuza eklendi!');
     }
 
-    function silDeneme(i) { denemeler.splice(i,1); localStorage.setItem('tyt_d', JSON.stringify(denemeler)); renderAll(); }
-    function silYanlis(i) { yanlislar.splice(i,1); localStorage.setItem('tyt_y', JSON.stringify(yanlislar)); renderAll(); }
+    function toggleYanlisDurum(i) {
+        yanlislar[i].cozuldum = !yanlislar[i].cozuldum;
+        localStorage.setItem('tyt_y', JSON.stringify(yanlislar));
+        renderAll();
+    }
+
+    function silDeneme(i) { 
+        denemeler.splice(i,1); 
+        localStorage.setItem('tyt_d', JSON.stringify(denemeler)); 
+        renderAll(); 
+    }
+    
+    function silYanlis(i) { 
+        yanlislar.splice(i,1); 
+        localStorage.setItem('tyt_y', JSON.stringify(yanlislar)); 
+        renderAll(); 
+    }
 
     function renderAll() {
+        let cozulenSayisi = yanlislar.filter(y => y.cozuldum).length;
+        let bekleyenSayisi = yanlislar.length - cozulenSayisi;
+
         document.getElementById('valDeneme').textContent = denemeler.length;
         document.getElementById('valYanlis').textContent = yanlislar.length;
-        document.getElementById('valCozulen').textContent = "0";
-        document.getElementById('valBekleyen').textContent = yanlislar.length;
+        document.getElementById('valCozulen').textContent = cozulenSayisi;
+        document.getElementById('valBekleyen').textContent = bekleyenSayisi;
 
         const dL = document.getElementById('listDeneme');
-        dL.innerHTML = denemeler.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz eklenmedi.</div>';
+        dL.innerHTML = denemeler.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz deneme kaydı yok.</div>';
         denemeler.forEach((d, i) => {
-            dL.innerHTML += `<div class="list-item"><div><b>${d.adi}</b> <span style="color:#8a99ad; font-size:12px;">(${d.tarih})</span><br><span style="color:#f59e0b;">${d.net} Net</span></div><button class="btn-del" onclick="silDeneme(${i})">Sil</button></div>`;
+            dL.innerHTML += `
+                <div class="list-item">
+                    <div>
+                        <b>${d.adi}</b> <span style="color:#8a99ad; font-size:12px;">(${d.tarih})</span><br>
+                        <span style="color:#f59e0b; font-weight:bold;">${d.net} Net</span>
+                    </div>
+                    <button class="btn-del" onclick="silDeneme(${i})">Sil</button>
+                </div>`;
         });
 
         const yL = document.getElementById('listYanlis');
-        yL.innerHTML = yanlislar.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz eklenmedi.</div>';
+        yL.innerHTML = yanlislar.length ? '' : '<div style="color:#8a99ad; font-size:12px;">Henüz kayıtlı yanlış soru yok.</div>';
         yanlislar.forEach((y, i) => {
-            yL.innerHTML += `<div class="list-item"><div><b>[${y.ders}] ${y.konu}</b><br><span style="color:#8a99ad; font-size:12px;">${y.notu || 'Not yok'}</span></div><button class="btn-del" onclick="silYanlis(${i})">Sil</button></div>`;
+            let statusClass = y.cozuldum ? 'status-done' : '';
+            let btnText = y.cozuldum ? '✓ Anlaşıldı' : 'Çözüldü İşaretle';
+            yL.innerHTML += `
+                <div class="list-item ${statusClass}">
+                    <div>
+                        <b>[${y.ders}] ${y.konu}</b><br>
+                        <span style="color:#8a99ad; font-size:12px;">${y.notu || 'Not girilmedi'}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-check" onclick="toggleYanlisDurum(${i})">${btnText}</button>
+                        <button class="btn-del" onclick="silYanlis(${i})">Sil</button>
+                    </div>
+                </div>`;
         });
 
         const ctx = document.getElementById('netChart').getContext('2d');
@@ -604,6 +656,7 @@
         });
     }
 
+    // İlk çalıştırma trigger'ları
     loadKonular();
     renderAll();
 </script>
